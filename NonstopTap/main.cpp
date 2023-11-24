@@ -88,7 +88,7 @@ TTF_Font* gFont28 = NULL;
 
 void loadMedia()
 {
-	gFont28 = TTF_OpenFont("res/font/Roboto-Regular.ttf", 28);
+	gFont28 = TTF_OpenFont("res/font/Oswald-VariableFont_wght.ttf", 28);
 }
 
 void startGame()
