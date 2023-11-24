@@ -269,6 +269,10 @@ void waitingForStart(int gamemode)
 		{
 			window.render(0, 0, gFont28, "1", BLACK);
 		}
+		else if (amountTime <= 5000)
+		{
+			window.render(0, 0, gFont28, "0", BLACK);
+		}
 		else
 		{
 			break;
