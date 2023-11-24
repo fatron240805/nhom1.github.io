@@ -38,6 +38,9 @@ void menu();
 //Choose gamemode based on some parameters
 bool chooseMode(int gamemode, int sizeGrid, Uint64 timeLimit, int numBlack);
 
+//
+void waitingForStart(int gamemode);
+
 //Endurance mode: keep playing as long as possible
 bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack);
 
@@ -228,6 +231,50 @@ void menu()
 			window.display();
 		}
 	}
+}
+
+void waitingForStart(int gamemode)
+{
+	Uint64 timeStart = SDL_GetTicks64();
+	SDL_Color BLACK = {0, 0, 0, 255};
+	while (true)
+	{
+		window.cleanScreen();
+		Uint64 amountTime = SDL_GetTicks64() - timeStart;
+		if (amountTime <= 1000)
+		{
+			if (gamemode == 0)
+			{
+				window.render(0, 0, gFont28, "Play as long as possible", BLACK);
+			}
+			else if (gamemode == 1)
+			{
+				window.render(0, 0, gFont28, "Get the highest score in limited time", BLACK);
+			}
+			else 
+			{
+				assert(gamemode == 2);
+				window.render(0, 0, gFont28, "Clear all pattern as fast as possible", BLACK);
+			}
+		}
+		else if (amountTime <= 2000)
+		{
+			window.render(0, 0, gFont28, "3", BLACK);
+		}
+		else if (amountTime <= 3000)
+		{
+			window.render(0, 0, gFont28, "2", BLACK);
+		}
+		else if (amountTime <= 4000)
+		{
+			window.render(0, 0, gFont28, "1", BLACK);
+		}
+		else
+		{
+			break;
+		}
+	}
+	
 }
 
 bool chooseMode(int gamemode, int sizeGrid, Uint64 timeLimit, int numBlack)
