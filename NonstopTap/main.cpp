@@ -47,6 +47,9 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack);
 //Pattern mode: complete every pattern in screen
 bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack);
 
+//Get response
+bool getResponse();
+
 //Free resource and quit SDL2
 void close();
 
@@ -309,30 +312,7 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 	window.render(0, 0, gFont28, textStream.str().c_str(), colorText);
 	window.display();
 
-	while(runningGame)
-	{
-		while (SDL_PollEvent(&e) != 0)
-		{
-			if (e.type == SDL_QUIT)
-			{
-				runningGame = false;
-				return false;
-			}
-			
-			else if (e.type == SDL_KEYDOWN)
-			{
-				if (e.key.keysym.sym == SDLK_r)
-				{
-					return true;
-				}
-				else if (e.key.keysym.sym == SDLK_t)
-				{
-					return false;
-				}
-			}
-		}
-	}
-	return true;
+	return getResponse();
 }
 
 bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
@@ -401,31 +381,7 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 	window.render(0, 0, gFont28, textStream.str().c_str(), colorText);
 	window.display();
 
-	while(runningGame)
-	{
-		while (SDL_PollEvent(&e) != 0)
-		{
-			if (e.type == SDL_QUIT)
-			{
-				runningGame = false;
-				return false;
-			}
-			
-			else if (e.type == SDL_KEYDOWN)
-			{
-				std::cerr << "next move" << std::endl;
-				if (e.key.keysym.sym == SDLK_r)
-				{
-					return true;
-				}
-				else if (e.key.keysym.sym == SDLK_t)
-				{
-					return false;
-				}
-			}
-		}
-	}
-	return true;
+	return getResponse();
 }
 
 bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
@@ -500,6 +456,13 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 	textStream << "Time: " << 1.0 * (SDL_GetTicks64() - timeStart) / 1000 << ". Press R to play again or T to choose another gamemode";
 	window.render(0, 0, gFont28, textStream.str().c_str(), colorText);
 	window.display();
+
+	return getResponse();
+}
+
+bool getResponse()
+{
+	SDL_Event e;
 
 	while(runningGame)
 	{
