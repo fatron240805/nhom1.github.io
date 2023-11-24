@@ -88,7 +88,7 @@ TTF_Font* gFont28 = NULL;
 
 void loadMedia()
 {
-	gFont28 = TTF_OpenFont("res/font/Oswald-VariableFont_wght.ttf", 28);
+	gFont28 = TTF_OpenFont("res/font/FallingSkyBlack-GYXA.otf", 28);
 }
 
 void startGame()
@@ -187,21 +187,28 @@ void menu()
 							gameMode = 0;
 							sizeGrid = 4;
 							timeLimit = 10 * 1000;
-							numBlack = 4;
+							numBlack = 3;
 							break;
 						
 						case SDLK_1:
 							gameMode = 1;
 							sizeGrid = 4;
 							timeLimit = 30 * 1000;
-							numBlack = 4;
+							numBlack = 3;
 							break;
 						
 						case SDLK_2:
 							gameMode = 2;
 							sizeGrid = 7;
 							timeLimit = 30 * 1000;
-							numBlack = 4;
+							numBlack = 3;
+							break;
+						
+						case SDLK_3:
+							gameMode = (rand() % 3);
+							sizeGrid = 4 + (rand() % 4);
+							timeLimit = (1 + (rand() % 4)) * 15 * 1000;
+							numBlack = 3 + (rand() % 4);
 							break;
 						
 						default:
@@ -217,7 +224,7 @@ void menu()
 		{
 			window.cleanScreen();
 			SDL_Color BLACK = {0, 0, 0, 255};
-			window.render(0, 0, gFont28, "This is menu game. Press ESC to back to home, or 0 to play Endurance, 1 to play Frenzy and 2 to play Pattern", BLACK);
+			window.render(0, 0, gFont28, "ESC: home, or 0: Endurance, 1: Frenzy, 2: Pattern, 3: Random", BLACK);
 			window.display();
 		}
 	}
@@ -248,15 +255,15 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 	bool quit = false;
 
-	int score = 0;
-	int requiredScore = 40;
 	const int amountTimeBonus = 10 * 1000;
-
+	int score = 0;
+	int requiredScore = numBlack * (1 + amountTimeBonus / 1000);
+	
 	Uint64 timeStart = SDL_GetTicks64();
 	Uint64 timeBonus = 0;
 
 	std::stringstream textStream;
-	SDL_Color colorText = {0, 0, 255, 255};
+	SDL_Color colorText = {0, 0, 0, 255};
 
 	while (!quit && runningGame)
 	{
