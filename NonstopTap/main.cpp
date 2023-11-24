@@ -14,7 +14,7 @@
 #include "RenderWindow.h"
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 720;
+const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 800;
 
 //Check if the game is still be played
@@ -158,7 +158,7 @@ void menu()
 	Uint64 timeLimit = 30 * 1000;
 	int numBlack = 3;
 
-	while (+)
+	while (!quit && runningGame)
 	{
 		while (keepPlaying)
 		{
