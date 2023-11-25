@@ -12,6 +12,7 @@
 #include "Title.h"
 #include "Grid.h"
 #include "RenderWindow.h"
+#include "MixerManager.h"
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 800;
@@ -85,6 +86,7 @@ bool init() {
 
 //Used to render everything in screen
 renderWindow window("Nonstop Tap", SCREEN_WIDTH, SCREEN_HEIGHT);
+mixerManager mixer = mixerManager();
 
 //Font
 TTF_Font* gFont28 = NULL;
@@ -92,6 +94,9 @@ TTF_Font* gFont28 = NULL;
 void loadMedia()
 {
 	gFont28 = TTF_OpenFont("res/font/FallingSkyBlack-GYXA.otf", 28);
+	mixer.loadMenuGameSound("res/sfx/menu_sound.mp3");
+	mixer.addRightNoteSound("res/sfx/click0.wav");
+	mixer.addRightNoteSound("res/sfx/click1.wav");
 }
 
 void startGame()
@@ -110,14 +115,17 @@ void startGame()
 			}
 			else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)
 			{
+				mixer.stopPlayMenuSound();
 				aboutUs();
 			}
 			else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_a)
 			{
+				mixer.stopPlayMenuSound();
 				menu();
 			}
 		}
 
+		mixer.playMenuSound();
 		window.cleanScreen();
 		SDL_Color BLACK = {0, 0, 0, 255};
 		window.render(0, 0, gFont28, "This is home. Press Q to know about us or A to start playing game", BLACK);
@@ -477,6 +485,7 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 					bool action = currentGrid.validAction(coorCell);
 					if (action)
 					{
+						mixer.playRightNoteSound();
 						currentGrid.onlyChangeColor(coorCell.first, coorCell.second);
 						leftBlack--;
 					}
