@@ -66,8 +66,9 @@ bool init() {
         success = false;
     }
 
+	int imgFlag = IMG_INIT_JPG | IMG_INIT_PNG;
 	//Initialize SDL_image (PNG)
-	if (!( IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+	if (( IMG_Init(imgFlag) & imgFlag) != imgFlag) {
 		std::cout << "IMG_init has failed. Error: " << IMG_GetError() << std::endl;
         success = false;
     }
@@ -91,12 +92,19 @@ mixerManager mixer = mixerManager();
 //Font
 TTF_Font* gFont28 = NULL;
 
+//Image
+SDL_Texture *logoName = NULL;
+SDL_Texture *background = NULL;
+
 void loadMedia()
 {
+	logoName = window.loadTexture("res/gfx/logoName.png");
+	background = window.loadTexture("res/gfx/background.png");
 	gFont28 = TTF_OpenFont("res/font/FallingSkyBlack-GYXA.otf", 28);
 	mixer.loadMenuGameSound("res/sfx/menu_sound.mp3");
 	mixer.addRightNoteSound("res/sfx/click0.wav");
 	mixer.addRightNoteSound("res/sfx/click1.wav");
+	mixer.loadWrongNoteound("res/sfx/failed01.wav");
 }
 
 void startGame()
@@ -128,7 +136,9 @@ void startGame()
 		mixer.playMenuSound();
 		window.cleanScreen();
 		SDL_Color BLACK = {0, 0, 0, 255};
-		window.render(0, 0, gFont28, "This is home. Press Q to know about us or A to start playing game", BLACK);
+		window.render(0, 0, background);
+		//window.render((SCREEN_WIDTH - 499) / 2, 0, logoName);
+		//window.render(500, 0, gFont28, "This is home. Press Q to know about us or A to start playing game", BLACK);
 		window.display();
 	}
 }
@@ -350,6 +360,7 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 					else
 					{
 						quit = true;
+						mixer.playWrongNoteSound();
 					}
 				}
 			}
@@ -372,6 +383,7 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 		window.display();
 	}
 
+	mixer.playWrongNoteSound();
 	window.cleanScreen();
 	textStream.str("");
 	textStream << "Your score: " << score << ". Press R to play again or T to choose another gamemode";
@@ -492,6 +504,7 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 					else
 					{
 						quit = true;
+						mixer.playWrongNoteSound();
 					}
 				}
 			}
@@ -518,6 +531,7 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 		window.display();
 	}
 
+	mixer.playWrongNoteSound();
 	window.cleanScreen();
 	textStream.str("");
 	textStream << "Time: " << 1.0 * (SDL_GetTicks64() - timeStart) / 1000 << ". Press R to play again or T to choose another gamemode";
