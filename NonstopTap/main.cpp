@@ -109,9 +109,10 @@ TTF_Font* gFont28 = NULL;
 
 //Image
 LTexture logoName = LTexture();
-SDL_Texture *background = NULL;
 LTexture net = LTexture();
-SDL_Texture *button = NULL;
+LTexture button = LTexture();
+
+LTexture avatarBao = LTexture();
 
 void loadMedia()
 {
@@ -123,7 +124,8 @@ void loadMedia()
 	net.texture = window.loadTexture("res/gfx/net.png");
 	net.updateDimension();
 
-	button = window.loadTexture("res/gfx/button.png");
+	button.texture = window.loadTexture("res/gfx/button.png");
+	button.updateDimension();
 
 	gFont28 = TTF_OpenFont("res/font/bungee.ttf", 28);
 
@@ -133,13 +135,37 @@ void loadMedia()
 	mixer.loadWrongNoteound("res/sfx/failed01.wav");
 }
 
+void drawBackground()
+{
+	static int frame = 0;
+
+	std::cerr << frame << std::endl;
+
+	mixer.playMenuSound();
+	window.cleanScreen();
+	
+	assert(net.height >= SCREEN_HEIGHT);
+	if (frame <= net.height - SCREEN_HEIGHT)
+	{
+		SDL_Rect clip = {0, frame, SCREEN_WIDTH, SCREEN_HEIGHT};
+		window.render(0, 0, net.texture, &clip);
+	}
+	else
+	{
+		SDL_Rect upper = {0, frame, SCREEN_WIDTH, net.height - frame};
+		SDL_Rect lower = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - (net.height - frame)};
+		window.render(0, 0, net.texture, &upper);
+		window.render(0, net.height - frame, net.texture, &lower);
+	}
+
+	frame = (frame + 1) % net.height;
+}
+
 void startGame()
 {
 	SDL_Event e;
 
 	bool quit = false;
-
-	int frame = 0;
 
 	while (!quit && runningGame)
 	{
@@ -159,29 +185,12 @@ void startGame()
 			}
 		}
 
-		mixer.playMenuSound();
-		window.cleanScreen();
-		
-		assert(net.height >= SCREEN_HEIGHT);
-		if (frame <= net.height - SCREEN_HEIGHT)
-		{
-			SDL_Rect clip = {0, frame, SCREEN_WIDTH, SCREEN_HEIGHT};
-			window.render(0, 0, net.texture, &clip);
-		}
-		else
-		{
-			SDL_Rect upper = {0, frame, SCREEN_WIDTH, net.height - frame};
-			SDL_Rect lower = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - (net.height - frame)};
-			window.render(0, 0, net.texture, &upper);
-			window.render(0, net.height - frame, net.texture, &lower);
-		}
+		drawBackground();
 
-		window.render((SCREEN_WIDTH - logoName.width) / 2, 80, logoName.texture);
-		
-		frame = (frame + 1) % net.height;
+		window.render((SCREEN_WIDTH - logoName.width) / 2, 50, logoName.texture);
 
-		
-		
+		window.render((SCREEN_WIDTH - button.width) / 2, 400, button.texture);
+
 		window.display();
 	}
 }
@@ -207,8 +216,8 @@ void aboutUs()
 			}
 		}
 
-		window.cleanScreen();
-		SDL_Color BLACK = {0, 0, 0, 255};
+		drawBackground();
+
 		window.display();
 	}
 }
