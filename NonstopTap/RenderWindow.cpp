@@ -19,7 +19,7 @@ renderWindow::renderWindow()
 renderWindow::renderWindow(std::string titleWindow, int SCREEN_WIDTH, int SCREEN_HEIGHT)
 {
     gWindow = SDL_CreateWindow(titleWindow.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
-	gRender = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+	gRender = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 }
 
 renderWindow::~renderWindow()
@@ -52,12 +52,18 @@ void renderWindow::cleanScreen()
     SDL_RenderClear(gRender);
 }
 
-void renderWindow::render(int x, int y, SDL_Texture* srcTexture)
+void renderWindow::render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip)
 {
     SDL_Rect srcClip, dstClip;
-    srcClip.x = srcClip.y = 0;
-
-    SDL_QueryTexture(srcTexture, NULL, NULL, &srcClip.w, &srcClip.h);
+    if (clip == NULL)
+    {
+        srcClip.x = srcClip.y = 0;
+        SDL_QueryTexture(srcTexture, NULL, NULL, &srcClip.w, &srcClip.h);
+    }
+    else
+    {
+        srcClip = {clip->x, clip->y, clip->w, clip->h};
+    }
 
     dstClip = {x, y, srcClip.w, srcClip.h};
 

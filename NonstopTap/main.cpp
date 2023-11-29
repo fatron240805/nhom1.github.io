@@ -13,6 +13,14 @@
 #include "Grid.h"
 #include "RenderWindow.h"
 #include "MixerManager.h"
+#include "LTexture.h"
+
+enum GAMEMODE_CODE
+{
+	ENDURANCE,
+	FRENZY,
+	PATTERN
+};
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 800;
@@ -20,6 +28,13 @@ const int SCREEN_HEIGHT = 800;
 
 //Check if the game is still be played
 bool runningGame = true;
+
+bool insideHitbox(SDL_Rect rect)
+{
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+	return rect.x <= x && x <= rect.x + rect.w && rect.y <= y && y <= rect.y + rect.h;
+}
 
 //Initialize SDL2
 bool init();
@@ -93,14 +108,25 @@ mixerManager mixer = mixerManager();
 TTF_Font* gFont28 = NULL;
 
 //Image
-SDL_Texture *logoName = NULL;
+LTexture logoName = LTexture();
 SDL_Texture *background = NULL;
+LTexture net = LTexture();
+SDL_Texture *button = NULL;
 
 void loadMedia()
 {
-	logoName = window.loadTexture("res/gfx/logoName.png");
+	logoName.texture = window.loadTexture("res/gfx/logoName.png");
+	logoName.updateDimension();
+
 	background = window.loadTexture("res/gfx/background.png");
-	gFont28 = TTF_OpenFont("res/font/FallingSkyBlack-GYXA.otf", 28);
+
+	net.texture = window.loadTexture("res/gfx/net.png");
+	net.updateDimension();
+
+	button = window.loadTexture("res/gfx/button.png");
+
+	gFont28 = TTF_OpenFont("res/font/bungee.ttf", 28);
+
 	mixer.loadMenuGameSound("res/sfx/menu_sound.mp3");
 	mixer.addRightNoteSound("res/sfx/click0.wav");
 	mixer.addRightNoteSound("res/sfx/click1.wav");
@@ -113,6 +139,8 @@ void startGame()
 
 	bool quit = false;
 
+	int frame = 0;
+
 	while (!quit && runningGame)
 	{
 		while (SDL_PollEvent(&e) != 0)
@@ -123,28 +151,44 @@ void startGame()
 			}
 			else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)
 			{
-				mixer.stopPlayMenuSound();
 				aboutUs();
 			}
 			else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_a)
 			{
-				mixer.stopPlayMenuSound();
 				menu();
 			}
 		}
 
 		mixer.playMenuSound();
 		window.cleanScreen();
-		SDL_Color BLACK = {0, 0, 0, 255};
-		window.render(0, 0, background);
-		//window.render((SCREEN_WIDTH - 499) / 2, 0, logoName);
-		//window.render(500, 0, gFont28, "This is home. Press Q to know about us or A to start playing game", BLACK);
+		
+		assert(net.height >= SCREEN_HEIGHT);
+		if (frame <= net.height - SCREEN_HEIGHT)
+		{
+			SDL_Rect clip = {0, frame, SCREEN_WIDTH, SCREEN_HEIGHT};
+			window.render(0, 0, net.texture, &clip);
+		}
+		else
+		{
+			SDL_Rect upper = {0, frame, SCREEN_WIDTH, net.height - frame};
+			SDL_Rect lower = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - (net.height - frame)};
+			window.render(0, 0, net.texture, &upper);
+			window.render(0, net.height - frame, net.texture, &lower);
+		}
+
+		window.render((SCREEN_WIDTH - logoName.width) / 2, 80, logoName.texture);
+		
+		frame = (frame + 1) % net.height;
+
+		
+		
 		window.display();
 	}
 }
 
 void aboutUs()
 {
+	mixer.playMenuSound();
 	SDL_Event e;
 
 	bool quit = false;
@@ -165,13 +209,13 @@ void aboutUs()
 
 		window.cleanScreen();
 		SDL_Color BLACK = {0, 0, 0, 255};
-		window.render(0, 0, gFont28, "This is home. Press E to back to home", BLACK);
 		window.display();
 	}
 }
 
 void menu()
 {
+	mixer.stopPlayMenuSound();
 	SDL_Event e;
 
 	bool quit = false;
@@ -230,9 +274,6 @@ void menu()
 							sizeGrid = 4 + (rand() % 4);
 							timeLimit = (1 + (rand() % 4)) * 15 * 1000;
 							numBlack = 3 + (rand() % 4);
-							break;
-						
-						default:
 							break;
 					}
 
