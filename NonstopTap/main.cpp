@@ -137,7 +137,7 @@ void loadMedia()
 	back.texture = window.loadTexture("res/gfx/back.png");
 	back.updateDimension();
 
-	frame.texture = window.loadTexture("res/gfx/bigframe2.png");
+	frame.texture = window.loadTexture("res/gfx/bigframe3.png");
 	frame.updateDimension();
 
 	gFont28 = TTF_OpenFont("res/font/bungee.ttf", 28);
@@ -382,9 +382,9 @@ void classicGamemode()
 		}
 
 		SDL_Rect backButton = {20, 20, back.width, back.height};
-		SDL_Rect enduranceButton = {(SCREEN_WIDTH - button.width) / 2, 350, button.width, button.height};
-		SDL_Rect frenzyButton = {(SCREEN_WIDTH - button.width) / 2, 350 + 150, button.width, button.height};
-		SDL_Rect patternButton = {(SCREEN_WIDTH - button.width) / 2, 350 + 150 * 2, button.width, button.height};
+		SDL_Rect enduranceButton = {(SCREEN_WIDTH - button.width) / 2, 400, button.width, button.height};
+		SDL_Rect frenzyButton = {(SCREEN_WIDTH - button.width) / 2, enduranceButton.y + 150, button.width, button.height};
+		SDL_Rect patternButton = {(SCREEN_WIDTH - button.width) / 2, enduranceButton.y + 150 * 2, button.width, button.height};
 
 		while (SDL_PollEvent(&e) != 0)
 		{
@@ -466,7 +466,98 @@ void classicGamemode()
 
 void advanceGamemode()
 {
+	cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+	SDL_SetCursor(cursor);
 
+	std::cerr << "advance" << std::endl;
+	mixer.stopPlayMenuSound();
+	SDL_Event e;
+
+	bool quit = false;
+	
+	bool keepPlaying = false;
+	int gameMode = FRENZY;
+	int sizeGrid = 4;
+	Uint64 timeLimit = 30 * 1000;
+	int numBlack = 3;
+
+	while (!quit && runningGame)
+	{
+		while (keepPlaying)
+		{
+			keepPlaying = chooseMode(gameMode, sizeGrid, timeLimit, numBlack);
+		}
+
+		SDL_Rect backButton = {20, 20, back.width, back.height};
+		SDL_Rect optionButton = {(SCREEN_WIDTH - button.width) / 2, 350, button.width, button.height};
+		SDL_Rect randomButton = {(SCREEN_WIDTH - button.width) / 2, 350 + 150, button.width, button.height};
+
+		while (SDL_PollEvent(&e) != 0)
+		{
+			if (e.type == SDL_QUIT)
+			{
+				runningGame = false;
+			}
+			else if (insideHitbox(backButton))
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					quit = true;
+				}
+			}
+			
+			else if (insideHitbox(optionButton))
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					
+					
+				}
+			}
+			else if (insideHitbox(randomButton))
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					gameMode = (rand() % 3);
+					sizeGrid = 4 + (rand() % 4);
+					timeLimit = (1 + (rand() % 4)) * 15 * 1000;
+					numBlack = 3 + (rand() % 4);
+					keepPlaying = chooseMode(gameMode, sizeGrid, timeLimit, numBlack);
+				}
+			}
+			
+		}
+
+		if (!keepPlaying)
+		{
+			drawBackground();
+			
+			SDL_Color BLACK = {0, 0, 0, 255};
+
+			window.render((SCREEN_WIDTH - frame.width) / 2, 100, frame.texture, NULL);
+			window.render((SCREEN_WIDTH - frame.width) / 2 + 0, 100 + 55, gFontBig, "ADVANCE", BLACK);
+
+			window.render(20, 20, back.texture);
+
+			window.render(optionButton.x, optionButton.y, button.texture);
+			//std::cerr << menuButton.x << ' ' << menuButton.y << ' ' << menuButton.w << ' ' << menuButton.h << std::endl;
+			window.render(optionButton.x + 40, optionButton.y + 25, gFont28, "OPTION", BLACK);
+
+			window.render(randomButton.x, randomButton.y, button.texture);
+			window.render(randomButton.x + 80, randomButton.y + 25, gFont28, "RANDOM", BLACK);
+
+			window.display();
+		}
+	}
 }
 
 void waitingForStart(int gamemode)
