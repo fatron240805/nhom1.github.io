@@ -27,7 +27,7 @@ class renderWindow
 
         void renderFillRect(int x, int y, int w, int h, int r, int g, int b, int a);
 
-        void render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip = NULL);
+        void render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip = NULL, double scale = 1);
 
         void render(int x, int y, TTF_Font* font, std::string text, SDL_Color textColor);
 

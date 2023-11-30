@@ -52,7 +52,7 @@ void renderWindow::cleanScreen()
     SDL_RenderClear(gRender);
 }
 
-void renderWindow::render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip)
+void renderWindow::render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip, double scale)
 {
     SDL_Rect srcClip, dstClip;
     if (clip == NULL)
@@ -65,7 +65,7 @@ void renderWindow::render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip)
         srcClip = {clip->x, clip->y, clip->w, clip->h};
     }
 
-    dstClip = {x, y, srcClip.w, srcClip.h};
+    dstClip = {x, y, int(srcClip.w * scale), int(srcClip.h * scale)};
 
     SDL_RenderCopy(gRender, srcTexture, &srcClip, &dstClip);
 }
