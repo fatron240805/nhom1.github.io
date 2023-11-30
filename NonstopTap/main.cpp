@@ -409,6 +409,7 @@ void classicGamemode()
 
 				if (e.type == SDL_MOUSEBUTTONDOWN)
 				{
+					gameMode = ENDURANCE;
 					keepPlaying = chooseMode(ENDURANCE);
 				}
 			}
@@ -419,6 +420,7 @@ void classicGamemode()
 
 				if (e.type == SDL_MOUSEBUTTONDOWN)
 				{
+					gameMode = FRENZY;
 					keepPlaying = chooseMode(FRENZY);
 				}
 			}
@@ -429,6 +431,7 @@ void classicGamemode()
 
 				if (e.type == SDL_MOUSEBUTTONDOWN)
 				{
+					gameMode = PATTERN;
 					keepPlaying = chooseMode(PATTERN);
 				}
 			}
