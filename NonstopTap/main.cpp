@@ -13,6 +13,14 @@
 #include "Grid.h"
 #include "RenderWindow.h"
 #include "MixerManager.h"
+#include "LTexture.h"
+
+enum GAMEMODE_CODE
+{
+	ENDURANCE,
+	FRENZY,
+	PATTERN
+};
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 800;
@@ -20,6 +28,13 @@ const int SCREEN_HEIGHT = 800;
 
 //Check if the game is still be played
 bool runningGame = true;
+
+bool insideHitbox(SDL_Rect rect)
+{
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+	return rect.x <= x && x <= rect.x + rect.w && rect.y <= y && y <= rect.y + rect.h;
+}
 
 //Initialize SDL2
 bool init();
@@ -93,85 +108,181 @@ mixerManager mixer = mixerManager();
 TTF_Font* gFont28 = NULL;
 
 //Image
-SDL_Texture *logoName = NULL;
-SDL_Texture *background = NULL;
+LTexture logoName = LTexture();
+LTexture net = LTexture();
+LTexture button = LTexture();
+LTexture back = LTexture();
+
+LTexture avatarBao = LTexture();
+
+SDL_Cursor* cursor;
 
 void loadMedia()
 {
-	logoName = window.loadTexture("res/gfx/logoName.png");
-	background = window.loadTexture("res/gfx/background.png");
-	gFont28 = TTF_OpenFont("res/font/FallingSkyBlack-GYXA.otf", 28);
+	logoName.texture = window.loadTexture("res/gfx/logoName.png");
+	logoName.updateDimension();
+
+	net.texture = window.loadTexture("res/gfx/net.png");
+	net.updateDimension();
+
+	button.texture = window.loadTexture("res/gfx/button.png");
+	button.updateDimension();
+
+	back.texture = window.loadTexture("res/gfx/back.png");
+	back.updateDimension();
+
+	gFont28 = TTF_OpenFont("res/font/bungee.ttf", 28);
+
 	mixer.loadMenuGameSound("res/sfx/menu_sound.mp3");
 	mixer.addRightNoteSound("res/sfx/click0.wav");
 	mixer.addRightNoteSound("res/sfx/click1.wav");
 	mixer.loadWrongNoteound("res/sfx/failed01.wav");
 }
 
+void drawBackground()
+{
+	static int frame = 0;
+
+	//std::cerr << frame << std::endl;
+
+	mixer.playMenuSound();
+	window.cleanScreen();
+	
+	assert(net.height >= SCREEN_HEIGHT);
+	if (frame <= net.height - SCREEN_HEIGHT)
+	{
+		SDL_Rect clip = {0, frame, SCREEN_WIDTH, SCREEN_HEIGHT};
+		window.render(0, 0, net.texture, &clip);
+	}
+	else
+	{
+		SDL_Rect upper = {0, frame, SCREEN_WIDTH, net.height - frame};
+		SDL_Rect lower = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - (net.height - frame)};
+		window.render(0, 0, net.texture, &upper);
+		window.render(0, net.height - frame, net.texture, &lower);
+	}
+
+	frame = (frame + 1) % net.height;
+}
+
 void startGame()
 {
+	cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+	SDL_SetCursor(cursor);
+
 	SDL_Event e;
 
 	bool quit = false;
+	int tmp = 0;
 
 	while (!quit && runningGame)
 	{
+		SDL_Rect menuButton = {(SCREEN_WIDTH - button.width) / 2, 450, button.width, button.height};
+		SDL_Rect aboutUsButton = {(SCREEN_WIDTH - button.width) / 2, 600, button.width, button.height};
+
+		if (insideHitbox(menuButton) || insideHitbox(aboutUsButton))
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		}
+		else
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+		}
+		SDL_SetCursor(cursor);
+
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))
 			{
 				runningGame = false;
 			}
-			else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)
+			else if (insideHitbox(menuButton))
 			{
-				mixer.stopPlayMenuSound();
-				aboutUs();
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					menu();
+				}
 			}
-			else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_a)
+			else if (insideHitbox(aboutUsButton))
 			{
-				mixer.stopPlayMenuSound();
-				menu();
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					aboutUs();
+				}
 			}
 		}
 
-		mixer.playMenuSound();
-		window.cleanScreen();
+		drawBackground();
+
+		window.render((SCREEN_WIDTH - logoName.width) / 2, 50, logoName.texture);
+
 		SDL_Color BLACK = {0, 0, 0, 255};
-		window.render(0, 0, background);
-		//window.render((SCREEN_WIDTH - 499) / 2, 0, logoName);
-		//window.render(500, 0, gFont28, "This is home. Press Q to know about us or A to start playing game", BLACK);
+
+		window.render(menuButton.x, menuButton.y, button.texture);
+		std::cerr << menuButton.x << ' ' << menuButton.y << ' ' << menuButton.w << ' ' << menuButton.h << std::endl;
+		window.render(menuButton.x + 95, menuButton.y + 25, gFont28, "MENU", BLACK);
+
+		window.render(aboutUsButton.x, aboutUsButton.y, button.texture);
+		window.render(menuButton.x + 62, menuButton.y + 175, gFont28, "ABOUT US", BLACK);
+
 		window.display();
 	}
 }
 
 void aboutUs()
 {
+	cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+	SDL_SetCursor(cursor);
+
+	std::cerr << "about us" << std::endl;
+	mixer.playMenuSound();
 	SDL_Event e;
 
 	bool quit = false;
 
 	while (!quit && runningGame)
-	{
+	{	
+		SDL_Rect backButton = {20, 20, back.width, back.height};
+
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT)
 			{
 				runningGame = false;
 			}
-			else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_e)
+			else if (insideHitbox(backButton))
 			{
-				quit = true;
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					quit = true;
+				}
 			}
 		}
 
-		window.cleanScreen();
-		SDL_Color BLACK = {0, 0, 0, 255};
-		window.render(0, 0, gFont28, "This is home. Press E to back to home", BLACK);
+		drawBackground();
+
+		window.render(20, 20, back.texture);
+
 		window.display();
 	}
 }
 
 void menu()
 {
+	cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+	SDL_SetCursor(cursor);
+
+	std::cerr << "menu" << std::endl;
+	mixer.stopPlayMenuSound();
 	SDL_Event e;
 
 	bool quit = false;
@@ -188,11 +299,24 @@ void menu()
 		{
 			keepPlaying = chooseMode(gameMode, sizeGrid, timeLimit, numBlack);
 		}
+
+		SDL_Rect backButton = {20, 20, back.width, back.height};
+
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT)
 			{
 				runningGame = false;
+			}
+			else if (insideHitbox(backButton))
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					quit = true;
+				}
 			}
 			else if (e.type == SDL_KEYDOWN)
 			{
@@ -231,9 +355,6 @@ void menu()
 							timeLimit = (1 + (rand() % 4)) * 15 * 1000;
 							numBlack = 3 + (rand() % 4);
 							break;
-						
-						default:
-							break;
 					}
 
 					keepPlaying = chooseMode(gameMode, sizeGrid, timeLimit, numBlack);
@@ -243,9 +364,10 @@ void menu()
 
 		if (!keepPlaying)
 		{
-			window.cleanScreen();
-			SDL_Color BLACK = {0, 0, 0, 255};
-			window.render(0, 0, gFont28, "ESC: home, or 0: Endurance, 1: Frenzy, 2: Pattern, 3: Random", BLACK);
+			drawBackground();
+
+			window.render(20, 20, back.texture);
+
 			window.display();
 		}
 	}
