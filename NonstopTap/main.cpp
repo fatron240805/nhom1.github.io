@@ -146,6 +146,19 @@ void loadMedia()
 	frame.updateDimension();
 
 	rect_frame.texture = window.loadTexture("res/gfx/square_button.png");
+	rect_frame.updateDimension();
+
+	big_frame.texture = window.loadTexture("res/gfx/bigframe6.png");
+	big_frame.updateDimension();
+
+	big_round.texture = window.loadTexture("res/gfx/big_round1.png");
+	big_round.updateDimension();
+
+	small_round.texture = window.loadTexture("res/gfx/small_round1.png");
+	small_round.updateDimension();
+
+	finish.texture = window.loadTexture("res/gfx/finish_frame.png");
+	finish.updateDimension();
 
 	avatarGroup = window.loadTexture("res/gfx/avatarGroup.png");
 
@@ -666,7 +679,39 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 		}
 		
 		drawBackground();
+
+		SDL_Rect backButton = {20, 20, back.width, back.height};
 		
+		SDL_Rect big_frame = {9, 109, big_frame.width, big_frame.height};
+
+			SDL_Rect big_round = {9, 224, big_round.width, big_round.height};
+
+			SDL_Rect big_round = {9, 328, big_round.width, big_round.height};
+
+			SDL_Rect big_round = {9, 430, big_round.width, big_round.height};
+		
+		SDL_Rect big_frame = {227, 109, big_frame.width, big_frame.height};
+
+			SDL_Rect small_round = {350, 224, small_round.width, small_round.height};
+
+			SDL_Rect small_round = {350, 328, small_round.width, small_round.height};
+
+			SDL_Rect small_round = {350, 430, small_round.width, small_round.height};
+
+			SDL_Rect small_round = {350, 532, small_round.width, small_round.height};
+
+		SDL_Rect big_frame = {541, 109, big_frame.width, big_frame.height};
+
+			SDL_Rect small_round = {620, 224, small_round.width, small_round.height};
+
+			SDL_Rect small_round = {620, 328, small_round.width, small_round.height};
+
+			SDL_Rect small_round = {620, 430, small_round.width, small_round.height};
+
+			SDL_Rect small_round = {620, 532, small_round.width, small_round.height};
+
+		SDL_Rect finish = {229, 656, finish.width, finish.height};
+
 		SDL_Color BLACK = {0, 0, 0, 255};
 
 		window.render(20, 20, back.texture);
