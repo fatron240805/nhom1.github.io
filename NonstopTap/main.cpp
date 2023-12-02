@@ -26,7 +26,7 @@ enum GAMEMODE_CODE
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
 
-//Check if the game is still be played
+//Check if the game is still being played
 bool runningGame = true;
 
 bool insideHitbox(SDL_Rect rect)
