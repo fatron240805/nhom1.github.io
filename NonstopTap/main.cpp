@@ -682,32 +682,24 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		
+		//Gamemode options
 		SDL_Rect big_frame = {9, 109, big_frame.width, big_frame.height};
-
 			SDL_Rect big_round = {9, 224, big_round.width, big_round.height};
-
 			SDL_Rect big_round = {9, 328, big_round.width, big_round.height};
-
 			SDL_Rect big_round = {9, 430, big_round.width, big_round.height};
 		
+		//Size options
 		SDL_Rect big_frame = {227, 109, big_frame.width, big_frame.height};
-
 			SDL_Rect small_round = {350, 224, small_round.width, small_round.height};
-
 			SDL_Rect small_round = {350, 328, small_round.width, small_round.height};
-
 			SDL_Rect small_round = {350, 430, small_round.width, small_round.height};
-
 			SDL_Rect small_round = {350, 532, small_round.width, small_round.height};
 
+		//Time options
 		SDL_Rect big_frame = {541, 109, big_frame.width, big_frame.height};
-
 			SDL_Rect small_round = {620, 224, small_round.width, small_round.height};
-
 			SDL_Rect small_round = {620, 328, small_round.width, small_round.height};
-
 			SDL_Rect small_round = {620, 430, small_round.width, small_round.height};
-
 			SDL_Rect small_round = {620, 532, small_round.width, small_round.height};
 
 		SDL_Rect finish = {229, 656, finish.width, finish.height};
