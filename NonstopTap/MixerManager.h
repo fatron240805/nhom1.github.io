@@ -34,6 +34,8 @@ class mixerManager
 
         void playWrongNoteSound();
 
+        void stopAnySound();
+
     private:
         int numRightNoteSound;
         Mix_Music *menuGame;

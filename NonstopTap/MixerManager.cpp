@@ -70,3 +70,9 @@ void mixerManager::playWrongNoteSound()
 {
     Mix_PlayChannel(-1, wrongNote, 0);
 }
+
+void mixerManager::stopAnySound()
+{
+    stopPlayMenuSound();
+    Mix_HaltChannel(-1);
+}
