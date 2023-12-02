@@ -55,6 +55,8 @@ void classicGamemode();
 
 void advanceGamemode();
 
+bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit);
+
 //Choose gamemode based on some parameters
 bool chooseMode(int gamemode, int sizeGrid = 4, Uint64 timeLimit = 30 * 1000, int numBlack = 3);
 
@@ -110,7 +112,9 @@ mixerManager mixer = mixerManager();
 
 //Font
 TTF_Font* gFont28 = NULL;
+TTF_Font* gFontMedium = NULL;
 TTF_Font* gFontBig = NULL;
+TTF_Font* gFontBigger = NULL;
 
 //Image
 LTexture logoName = LTexture();
@@ -118,8 +122,9 @@ LTexture net = LTexture();
 LTexture button = LTexture();
 LTexture back = LTexture();
 LTexture frame = LTexture();
+LTexture rect_frame = LTexture();
 
-LTexture avatarBao = LTexture();
+SDL_Texture *avatarGroup = NULL;
 
 SDL_Cursor* cursor;
 
@@ -140,12 +145,20 @@ void loadMedia()
 	frame.texture = window.loadTexture("res/gfx/bigframe3.png");
 	frame.updateDimension();
 
-	gFont28 = TTF_OpenFont("res/font/bungee.ttf", 28);
-	gFontBig = TTF_OpenFont("res/font/bungee.ttf", 100);
+	rect_frame.texture = window.loadTexture("res/gfx/square_button.png");
 
-	mixer.loadMenuGameSound("res/sfx/menu_sound.mp3");
+	avatarGroup = window.loadTexture("res/gfx/avatarGroup.png");
+
+	gFont28 = TTF_OpenFont("res/font/bungee.ttf", 28);
+	gFontMedium = TTF_OpenFont("res/font/bungee.ttf", 50);
+	gFontBig = TTF_OpenFont("res/font/bungee.ttf", 100);
+	gFontBigger = TTF_OpenFont("res/font/bungee.ttf", 200);
+
+	mixer.loadMenuGameSound("res/sfx/menu_sound_better.mp3");
 	mixer.addRightNoteSound("res/sfx/click0.wav");
 	mixer.addRightNoteSound("res/sfx/click1.wav");
+	mixer.addRightNoteSound("res/sfx/click2.wav");
+	mixer.addRightNoteSound("res/sfx/click3.wav");
 	mixer.loadWrongNoteound("res/sfx/failed01.wav");
 }
 
@@ -251,7 +264,6 @@ void aboutUs()
 	SDL_SetCursor(cursor);
 
 	std::cerr << "about us" << std::endl;
-	mixer.playMenuSound();
 	SDL_Event e;
 
 	bool quit = false;
@@ -259,6 +271,16 @@ void aboutUs()
 	while (!quit && runningGame)
 	{	
 		SDL_Rect backButton = {20, 20, back.width, back.height};
+
+		if (insideHitbox(backButton))
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		}
+		else
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+		}
+		SDL_SetCursor(cursor);
 
 		while (SDL_PollEvent(&e) != 0)
 		{
@@ -280,6 +302,8 @@ void aboutUs()
 
 		drawBackground();
 
+		window.render(0, 0, avatarGroup);
+		
 		window.render(20, 20, back.texture);
 
 		window.display();
@@ -301,6 +325,16 @@ void menu()
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		SDL_Rect classicButton = {(SCREEN_WIDTH - button.width) / 2, 450, button.width, button.height};
 		SDL_Rect advanceButton = {(SCREEN_WIDTH - button.width) / 2, 600, button.width, button.height};
+
+		if (insideHitbox(backButton) || insideHitbox(classicButton) || insideHitbox(advanceButton))
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		}
+		else
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+		}
+		SDL_SetCursor(cursor);
 
 		while (SDL_PollEvent(&e) != 0)
 		{
@@ -337,6 +371,11 @@ void menu()
 					advanceGamemode();
 				}
 			}
+			else
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+				SDL_SetCursor(cursor);
+			}
 		}
 
 		
@@ -345,7 +384,7 @@ void menu()
 		SDL_Color BLACK = {0, 0, 0, 255};
 
 		window.render((SCREEN_WIDTH - frame.width) / 2, 100, frame.texture, NULL);
-		window.render((SCREEN_WIDTH - frame.width) / 2 + 105, 100 + 55, gFontBig, "MENU", BLACK);
+		window.render((SCREEN_WIDTH - frame.width) / 2 + 150, 100 + 70, gFontBig, "MENU", BLACK);
 
 		window.render(20, 20, back.texture);
 
@@ -354,7 +393,7 @@ void menu()
 		window.render(classicButton.x + 70, classicButton.y + 25, gFont28, "CLASSIC", BLACK);
 
 		window.render(advanceButton.x, advanceButton.y, button.texture);
-		window.render(advanceButton.x + 60, advanceButton.y + 25, gFont28, "ADVANCE", BLACK);
+		window.render(advanceButton.x + 70, advanceButton.y + 25, gFont28, "ADVANCE", BLACK);
 
 		window.display();
 	}
@@ -366,7 +405,6 @@ void classicGamemode()
 	SDL_SetCursor(cursor);
 
 	std::cerr << "classic" << std::endl;
-	mixer.stopPlayMenuSound();
 	SDL_Event e;
 
 	bool quit = false;
@@ -385,6 +423,16 @@ void classicGamemode()
 		SDL_Rect enduranceButton = {(SCREEN_WIDTH - button.width) / 2, 400, button.width, button.height};
 		SDL_Rect frenzyButton = {(SCREEN_WIDTH - button.width) / 2, enduranceButton.y + 150, button.width, button.height};
 		SDL_Rect patternButton = {(SCREEN_WIDTH - button.width) / 2, enduranceButton.y + 150 * 2, button.width, button.height};
+
+		if (insideHitbox(backButton) || insideHitbox(enduranceButton) || insideHitbox(frenzyButton) || insideHitbox(patternButton))
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		}
+		else
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+		}
+		SDL_SetCursor(cursor);
 
 		while (SDL_PollEvent(&e) != 0)
 		{
@@ -445,19 +493,19 @@ void classicGamemode()
 			SDL_Color BLACK = {0, 0, 0, 255};
 
 			window.render((SCREEN_WIDTH - frame.width) / 2, 100, frame.texture, NULL);
-			window.render((SCREEN_WIDTH - frame.width) / 2 + 20, 100 + 55, gFontBig, "CLASSIC", BLACK);
+			window.render((SCREEN_WIDTH - frame.width) / 2 + 70, 100 + 75, gFontBig, "CLASSIC", BLACK);
 
 			window.render(20, 20, back.texture);
 
 			window.render(enduranceButton.x, enduranceButton.y, button.texture);
 			//std::cerr << menuButton.x << ' ' << menuButton.y << ' ' << menuButton.w << ' ' << menuButton.h << std::endl;
-			window.render(enduranceButton.x + 40, enduranceButton.y + 25, gFont28, "ENDURANCE", BLACK);
+			window.render(enduranceButton.x + 45, enduranceButton.y + 25, gFont28, "ENDURANCE", BLACK);
 
 			window.render(frenzyButton.x, frenzyButton.y, button.texture);
 			window.render(frenzyButton.x + 80, frenzyButton.y + 25, gFont28, "FRENZY", BLACK);
 
 			window.render(patternButton.x, patternButton.y, button.texture);
-			window.render(patternButton.x + 65, patternButton.y + 25, gFont28, "PATTERN", BLACK);
+			window.render(patternButton.x + 75, patternButton.y + 25, gFont28, "PATTERN", BLACK);
 
 			window.display();
 		}
@@ -470,7 +518,6 @@ void advanceGamemode()
 	SDL_SetCursor(cursor);
 
 	std::cerr << "advance" << std::endl;
-	mixer.stopPlayMenuSound();
 	SDL_Event e;
 
 	bool quit = false;
@@ -491,6 +538,16 @@ void advanceGamemode()
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		SDL_Rect optionButton = {(SCREEN_WIDTH - button.width) / 2, 350, button.width, button.height};
 		SDL_Rect randomButton = {(SCREEN_WIDTH - button.width) / 2, 350 + 150, button.width, button.height};
+		
+		if (insideHitbox(backButton) || insideHitbox(optionButton) || insideHitbox(randomButton))
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		}
+		else
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+		}
+		SDL_SetCursor(cursor);
 
 		while (SDL_PollEvent(&e) != 0)
 		{
@@ -516,8 +573,10 @@ void advanceGamemode()
 
 				if (e.type == SDL_MOUSEBUTTONDOWN)
 				{
-					
-					
+					if (optionMap(gameMode, sizeGrid, timeLimit))
+					{
+						keepPlaying = chooseMode(gameMode, sizeGrid, timeLimit, numBlack);
+					}
 				}
 			}
 			else if (insideHitbox(randomButton))
@@ -560,56 +619,116 @@ void advanceGamemode()
 	}
 }
 
+bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
+{
+	cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+	SDL_SetCursor(cursor);
+
+	std::cerr << "option" << std::endl;
+	SDL_Event e;
+
+	bool quit = false;
+	bool startGame = true;
+	
+	while (!quit && runningGame)
+	{
+		SDL_Rect backButton = {20, 20, back.width, back.height};
+		
+		if (insideHitbox(backButton))
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		}
+		else
+		{
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+		}
+		SDL_SetCursor(cursor);
+
+		while (SDL_PollEvent(&e) != 0)
+		{
+			if (e.type == SDL_QUIT)
+			{
+				runningGame = false;
+				startGame = false;
+			}
+			else if (insideHitbox(backButton))
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					quit = true;
+					startGame = false;
+				}
+			}
+			
+		}
+		
+		drawBackground();
+		
+		SDL_Color BLACK = {0, 0, 0, 255};
+
+		window.render(20, 20, back.texture);
+
+		window.render(0, 100, rect_frame.texture);
+
+		window.display();
+		
+	}
+	return startGame;
+}
+
 void waitingForStart(int gamemode)
 {
 	Uint64 timeStart = SDL_GetTicks64();
 	SDL_Color BLACK = {0, 0, 0, 255};
+	std::cerr << "wait" << std::endl;
 	while (true)
 	{
 		window.cleanScreen();
 		Uint64 amountTime = SDL_GetTicks64() - timeStart;
-		if (amountTime <= 1000)
+		if (amountTime <= 3000)
 		{
-			if (gamemode == 0)
+			if (gamemode == ENDURANCE)
 			{
-				window.render(0, 0, gFont28, "Play as long as possible", BLACK);
+				window.render(300, 200, gFontMedium, "Play\nas\nlong\nas\npossible", BLACK);
 			}
-			else if (gamemode == 1)
+			else if (gamemode == FRENZY)
 			{
-				window.render(0, 0, gFont28, "Get the highest score in limited time", BLACK);
+				window.render(300, 150, gFontMedium, "Get\nthe\nhighest\nscore\nin\nlimited\ntime", BLACK);
 			}
 			else 
 			{
-				assert(gamemode == 2);
-				window.render(0, 0, gFont28, "Clear all pattern as fast as possible", BLACK);
+				assert(gamemode == PATTERN);
+				window.render(300, 150, gFontMedium, "Clear\nall\npattern\nas\nfast\nas\npossible", BLACK);
 			}
 		}
-		else if (amountTime <= 2000)
+		else if (amountTime <= 3000 + 1000)
 		{
-			window.render(0, 0, gFont28, "3", BLACK);
+			window.render(325, 350, gFontBigger, "3", BLACK);
 		}
-		else if (amountTime <= 3000)
+		else if (amountTime <= 3000 + 1000 * 2)
 		{
-			window.render(0, 0, gFont28, "2", BLACK);
+			window.render(325, 350, gFontBigger, "2", BLACK);
 		}
-		else if (amountTime <= 4000)
+		else if (amountTime <= 3000 + 1000 * 3)
 		{
-			window.render(0, 0, gFont28, "1", BLACK);
-		}
-		else if (amountTime <= 5000)
-		{
-			window.render(0, 0, gFont28, "0", BLACK);
+			window.render(325, 350, gFontBigger, "1", BLACK);
 		}
 		else
 		{
 			break;
 		}
+
+		window.display();
 	}
-	
 }
 
 bool chooseMode(int gamemode, int sizeGrid, Uint64 timeLimit, int numBlack)
 {
+	mixer.stopPlayMenuSound();
+	waitingForStart(gamemode);
 	if (gamemode == 0)
 	{
 		return enduranceMode(sizeGrid, timeLimit, numBlack);
@@ -866,6 +985,7 @@ bool getResponse()
 			
 			else if (e.type == SDL_KEYDOWN)
 			{
+				mixer.stopAnySound();
 				if (e.key.keysym.sym == SDLK_r)
 				{
 					return true;
