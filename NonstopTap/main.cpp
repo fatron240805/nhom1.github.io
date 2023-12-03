@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <sstream>
+#include <array>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -28,6 +29,8 @@ const int SCREEN_HEIGHT = 800;
 
 //Check if the game is still being played
 bool runningGame = true;
+
+bool isPlayingClassic = true;
 
 bool insideHitbox(SDL_Rect rect)
 {
@@ -58,10 +61,10 @@ void advanceGamemode();
 bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit);
 
 //Choose gamemode based on some parameters
-bool chooseMode(int gamemode, int sizeGrid = 4, Uint64 timeLimit = 30 * 1000, int numBlack = 3);
+bool chooseMode(int gamemode, int sizeGrid = 4, Uint64 timeLimit = 30 * 1000, int numBlack = 0);
 
 //
-void waitingForStart(int gamemode);
+bool waitingForStart(int gamemode);
 
 //Endurance mode: keep playing as long as possible
 bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack);
@@ -112,7 +115,9 @@ mixerManager mixer = mixerManager();
 
 //Font
 TTF_Font* gFont28 = NULL;
+TTF_Font* gFont35 = NULL;
 TTF_Font* gFontMedium = NULL;
+TTF_Font* gFont70 = NULL;
 TTF_Font* gFontBig = NULL;
 TTF_Font* gFontBigger = NULL;
 
@@ -130,6 +135,7 @@ LTexture small_round = LTexture();
 LTexture small_round_black = LTexture();
 LTexture finish = LTexture();
 LTexture groupName = LTexture();
+LTexture point[6]{};
 
 SDL_Texture *avatarGroup = NULL;
 
@@ -176,16 +182,28 @@ void loadMedia()
 	groupName.texture = window.loadTexture("res/gfx/groupName.png");
 	groupName.updateDimension();
 
+	for (int i = 1; i <= 5; i++)
+	{
+		std::string path = "res/gfx/+";
+		path += char(i + 48);
+		path += ".png";
+		std::cerr << path << std::endl;
+		point[i].texture = window.loadTexture(path);
+		point[i].updateDimension();
+	}
+
 	avatarGroup = window.loadTexture("res/gfx/avatarGroup.png");
 
 	gFont28 = TTF_OpenFont("res/font/bungee.ttf", 28);
+	gFont35 = TTF_OpenFont("res/font/bungee.ttf", 35);
 	gFontMedium = TTF_OpenFont("res/font/bungee.ttf", 50);
+	gFont70 = TTF_OpenFont("res/font/bungee.ttf", 70);
 	gFontBig = TTF_OpenFont("res/font/bungee.ttf", 100);
 	gFontBigger = TTF_OpenFont("res/font/bungee.ttf", 200);
 
 	mixer.loadMenuGameSound("res/sfx/menu_sound_better.mp3");
 	mixer.addRightNoteSound("res/sfx/click0_solved.wav");
-	mixer.addRightNoteSound("res/sfx/click1_solved.wav");
+	//mixer.addRightNoteSound("res/sfx/click1_solved.wav");
 	mixer.addRightNoteSound("res/sfx/click2_solved.wav");
 	mixer.addRightNoteSound("res/sfx/click3_solved.wav");
 	mixer.loadWrongNoteound("res/sfx/failed01.wav");
@@ -489,6 +507,8 @@ void classicGamemode()
 				if (e.type == SDL_MOUSEBUTTONDOWN)
 				{
 					gameMode = ENDURANCE;
+					std::cerr << "ENDURANCE" << std::endl;
+					isPlayingClassic = true;
 					keepPlaying = chooseMode(ENDURANCE);
 				}
 			}
@@ -500,6 +520,8 @@ void classicGamemode()
 				if (e.type == SDL_MOUSEBUTTONDOWN)
 				{
 					gameMode = FRENZY;
+					std::cerr << "FRENZY" << std::endl;
+					isPlayingClassic = true;
 					keepPlaying = chooseMode(FRENZY);
 				}
 			}
@@ -511,6 +533,8 @@ void classicGamemode()
 				if (e.type == SDL_MOUSEBUTTONDOWN)
 				{
 					gameMode = PATTERN;
+					std::cerr << "PATTERN" << std::endl;
+					isPlayingClassic = true;
 					keepPlaying = chooseMode(PATTERN);
 				}
 			}
@@ -606,6 +630,7 @@ void advanceGamemode()
 				{
 					if (optionMap(gameMode, sizeGrid, timeLimit))
 					{
+						isPlayingClassic = false;
 						keepPlaying = chooseMode(gameMode, sizeGrid, timeLimit, numBlack);
 					}
 				}
@@ -621,6 +646,7 @@ void advanceGamemode()
 					sizeGrid = 4 + (rand() % 4);
 					timeLimit = (1 + (rand() % 4)) * 15 * 1000;
 					numBlack = 3 + (rand() % 4);
+					isPlayingClassic = false;
 					keepPlaying = chooseMode(gameMode, sizeGrid, timeLimit, numBlack);
 				}
 			}
@@ -682,8 +708,6 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 			timeOption[1] = {620, 328, small_round.width, small_round.height};
 			timeOption[2] = {620, 430, small_round.width, small_round.height};
 			timeOption[3] = {620, 532, small_round.width, small_round.height};
-		
-		
 
 		auto insideGroupRect = [&](SDL_Rect groupRect[], int len) ->bool {
 			for (int i = 0; i < len; i++)
@@ -788,40 +812,78 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 		drawBackground();
 		std::cerr << choosedGamemode << ' ' << choosedSize << ' ' << choosedTime << std::endl;
 
+		std::stringstream tempStream;
+
 		SDL_Color BLACK = {0, 0, 0, 255};
+		SDL_Color WHITE = {255, 255, 255, 255};
 		//Gamemode options
 		window.render(9, 109, big_frame.texture);
+		window.render(9 + 50, 109 + 15, gFontMedium, "MODE", BLACK);
 		window.render(gameOption[0].x, gameOption[0].y, big_round.texture);
+		window.render(gameOption[0].x + 12, gameOption[0].y + 22, gFont35, "ENDURANCE", BLACK);
 		window.render(gameOption[1].x, gameOption[1].y, big_round.texture);
+		window.render(gameOption[1].x + 55, gameOption[1].y + 22, gFont35, "FRENZY", BLACK);
 		window.render(gameOption[2].x, gameOption[2].y, big_round.texture);
+		window.render(gameOption[2].x + 40, gameOption[2].y + 22, gFont35, "PATTERN", BLACK);
 		if (choosedGamemode >= 0) 
 		{
+			std::string content = "";
+			int dis = 0;
+			switch (choosedGamemode)
+			{
+				case 0:
+					content = "ENDURANCE";
+					dis = 12;
+					break;
+				case 1:
+					content = "FRENZY";
+					dis = 55;
+					break;
+				default:
+					content = "PATTERN";
+					dis = 40;
+					break;
+			}
 			window.render(gameOption[choosedGamemode].x, gameOption[choosedGamemode].y, big_round_black.texture);
+			window.render(gameOption[choosedGamemode].x + dis, gameOption[choosedGamemode].y + 22, gFont35, content, WHITE);
 		}
 
 		//Size options
 		window.render(275, 109, big_frame.texture);
-		window.render(sizeOption[0].x, sizeOption[0].y, small_round.texture);
-		window.render(sizeOption[1].x, sizeOption[1].y, small_round.texture);
-		window.render(sizeOption[2].x, sizeOption[2].y, small_round.texture);
-		window.render(sizeOption[3].x, sizeOption[3].y, small_round.texture);
+		window.render(275 + 57, 109 + 15, gFontMedium, "SIZE", BLACK);
+		for (int i = 0; i < 4; i++)
+		{
+			window.render(sizeOption[i].x, sizeOption[i].y, small_round.texture);
+			tempStream.str("");
+			tempStream << i + 4 << 'x' << i + 4;
+			window.render(sizeOption[i].x + 12, sizeOption[i].y + 22, gFont35, tempStream.str().c_str(), BLACK);
+		}
 		if (choosedSize >= 0)
 		{
 			window.render(sizeOption[choosedSize].x, sizeOption[choosedSize].y, small_round_black.texture);
+			tempStream.str("");
+			tempStream << choosedSize + 4 << 'x' << choosedSize + 4;
+			window.render(sizeOption[choosedSize].x + 12, sizeOption[choosedSize].y + 22, gFont35, tempStream.str().c_str(), WHITE);
 		}
 
 		//Time options
 		window.render(541, 109, big_frame.texture);
-		window.render(timeOption[0].x, timeOption[0].y, small_round.texture);
-		window.render(timeOption[1].x, timeOption[1].y, small_round.texture);
-		window.render(timeOption[2].x, timeOption[2].y, small_round.texture);
-		window.render(timeOption[3].x, timeOption[3].y, small_round.texture);
+		window.render(541 + 57, 109 + 15, gFontMedium, "TIME", BLACK);
+		for (int i = 0; i < 4; i++)
+		{
+			window.render(timeOption[i].x, timeOption[i].y, small_round.texture);
+			tempStream.str("");
+			tempStream << (i + 1) * 15;
+			window.render(timeOption[i].x + 28, timeOption[i].y + 22, gFont35, tempStream.str().c_str(), BLACK);
+		}
 		if (choosedTime >= 0)
 		{
-			window.render(timeOption[choosedTime].x, timeOption[choosedTime].y, small_round_black.texture);
-		}
+			tempStream.str("");
+			tempStream << (choosedTime + 1) * 15;
 
-		
+			window.render(timeOption[choosedTime].x, timeOption[choosedTime].y, small_round_black.texture);
+			window.render(timeOption[choosedTime].x + 28, timeOption[choosedTime].y + 22, gFont35, tempStream.str().c_str(), WHITE);
+		}
 
 		window.render(20, 20, back.texture);
 
@@ -833,13 +895,25 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 	return startGame;
 }
 
-void waitingForStart(int gamemode)
+bool waitingForStart(int gamemode)
 {
 	Uint64 timeStart = SDL_GetTicks64();
 	SDL_Color BLACK = {0, 0, 0, 255};
 	std::cerr << "wait" << std::endl;
+
+	SDL_Event e;
+
 	while (true)
 	{
+		while(SDL_PollEvent(&e) != 0)
+		{
+			if (e.type == SDL_QUIT)
+			{
+				runningGame = false;
+				return false;
+			}
+		}
+
 		window.cleanScreen();
 		Uint64 amountTime = SDL_GetTicks64() - timeStart;
 		if (amountTime <= 3000)
@@ -877,12 +951,23 @@ void waitingForStart(int gamemode)
 
 		window.display();
 	}
+
+	return true;
 }
 
 bool chooseMode(int gamemode, int sizeGrid, Uint64 timeLimit, int numBlack)
 {
-	mixer.stopPlayMenuSound();
-	waitingForStart(gamemode);
+	if (numBlack == 0)
+	{
+		numBlack = 3 + (sizeGrid >= 6);
+	}
+	std::cerr << gamemode << ' ' << sizeGrid << ' ' << timeLimit << ' ' << numBlack << std::endl;
+	//mixer.stopPlayMenuSound();
+	mixer.lowerPlayMenuSound();
+	if (!waitingForStart(gamemode))
+	{
+		return false;
+	}
 	if (gamemode == 0)
 	{
 		return enduranceMode(sizeGrid, timeLimit, numBlack);
@@ -901,21 +986,26 @@ bool chooseMode(int gamemode, int sizeGrid, Uint64 timeLimit, int numBlack)
 
 bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 {
+	std::cerr << "endurance" << std::endl;
 	Grid currentGrid = Grid(sizeGrid, timeLimit, numBlack, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	SDL_Event e;
 
 	bool quit = false;
 
-	const int amountTimeBonus = 10 * 1000;
+	const int amountTimeBonus = timeLimit;
 	int score = 0;
-	int requiredScore = numBlack * (1 + amountTimeBonus / 1000);
+	int requiredScore = std::min(numBlack * (1 + amountTimeBonus / 1000), 40) * timeLimit / 10000;
 	
 	Uint64 timeStart = SDL_GetTicks64();
 	Uint64 timeBonus = 0;
 
+	std::vector<std::pair<std::array<int, 4>, Uint64>>queryRender;
+
 	std::stringstream textStream;
 	SDL_Color colorText = {0, 0, 0, 255};
+
+	std::cerr << "start" << std::endl;
 
 	while (!quit && runningGame)
 	{
@@ -934,16 +1024,40 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 					bool action = currentGrid.validAction(coorCell);
 					if (action)
 					{
+						mixer.playRightNoteSound();
 						currentGrid.changeColor(coorCell.first, coorCell.second);
+						int row = coorCell.first, col = coorCell.second;
+						int x = currentGrid.getCoor(row, col).x, y = currentGrid.getCoor(row, col).y;
+
+						std::array<int, 4> tmp = {x, y, 1, 100};
+						queryRender.emplace_back(tmp, SDL_GetTicks64());
+
 						if (++score % requiredScore == 0)
 						{
 							timeBonus += amountTimeBonus;
 						}
+						if (score == INT_MAX)
+						{
+							quit = true;
+						}
 					}
 					else
 					{
-						quit = true;
+						std::cerr << "wrong note" << std::endl;
+						int row = coorCell.first, col = coorCell.second;
 						mixer.playWrongNoteSound();
+
+						SDL_Color RED = {255, 0, 0, 0};
+						int startTime = SDL_GetTicks64();
+						while(SDL_GetTicks64() - startTime <= 1000)
+						{
+							std::cerr << "render red" << std::endl;
+							window.renderTitle(currentGrid.getCell(row, col), 255, 0, 0, 255);
+							window.display();
+						}
+
+						quit = true;
+						
 					}
 				}
 			}
@@ -952,26 +1066,43 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 		if (SDL_GetTicks64() - timeStart >= timeLimit + timeBonus)
 		{
 			quit = true;
+			break;
 		}
 
 		window.renderGrid(currentGrid);
 
-		textStream.str("");
-		textStream << "Current score: " << score;
-		window.render(0, 0, gFont28, textStream.str().c_str(), colorText);
+		int sx = currentGrid.getGridRect()->x;
+		int sy = currentGrid.getGridRect()->y;
+		int len = currentGrid.getGridRect()->w;
+		SDL_Color BLACK = {0, 0, 0, 255};
+		SDL_Color RED = {255, 0, 0, 255};
+
+		for (auto &[info, startTime]: queryRender)
+		{
+			if (SDL_GetTicks64() - startTime > info[3])
+			{
+				continue;
+			}
+			else 
+			{
+				window.render(info[0], info[1], point[info[2]].texture);
+			}
+		}
+		
+		window.render(sx, sy - 120, gFont35, "TIME", BLACK, 1, sx, sx + len);
 
 		textStream.str("");
-		textStream << "Time left: " << 1.0 * (timeLimit + timeBonus - SDL_GetTicks64() + timeStart) / 1000;
-		window.render(0, SCREEN_HEIGHT - 28, gFont28, textStream.str().c_str(), colorText);
+		textStream << (timeLimit + timeBonus - SDL_GetTicks64() + timeStart) / 1000;
+		window.render(sx, sy - 72, gFont70, textStream.str().c_str(), RED, 1, sx, sx + len);
+
+		window.render(sx, sy - 120, gFont35, "SCORE", BLACK, 2, sx, sx + len);
+
+		textStream.str("");
+		textStream << score;
+		window.render(sx, sy - 72, gFont70, textStream.str().c_str(), RED, 2, sx, sx + len);
+
 		window.display();
 	}
-
-	mixer.playWrongNoteSound();
-	window.cleanScreen();
-	textStream.str("");
-	textStream << "Your score: " << score << ". Press R to play again or T to choose another gamemode";
-	window.render(0, 0, gFont28, textStream.str().c_str(), colorText);
-	window.display();
 
 	return getResponse();
 }
@@ -985,8 +1116,11 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 	bool quit = false;
 
 	int score = 0;
+	int numHit = 0;
+	int multiply = 1;
 
 	Uint64 timeStart = SDL_GetTicks64();
+	std::vector<std::pair<std::array<int, 4>, Uint64>>queryRender;
 
 	std::stringstream textStream;
 	SDL_Color colorText = {0, 0, 0, 255};
@@ -1008,11 +1142,31 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 					bool action = currentGrid.validAction(coorCell);
 					if (action)
 					{
+						mixer.playRightNoteSound();
+						int row = coorCell.first, col = coorCell.second;
+						int x = currentGrid.getCoor(row, col).x, y = currentGrid.getCoor(row, col).y;
+
+						std::array<int, 4> tmp = {x, y, multiply, 100};
+						queryRender.emplace_back(tmp, SDL_GetTicks64());
+
 						currentGrid.changeColor(coorCell.first, coorCell.second);
-						score++;
+						score += multiply;
+						numHit++;
 					}
 					else
 					{
+						int row = coorCell.first, col = coorCell.second;
+						mixer.playWrongNoteSound();
+
+						SDL_Color RED = {255, 0, 0, 0};
+						int startTime = SDL_GetTicks64();
+						while(SDL_GetTicks64() - startTime <= 1000)
+						{
+							std::cerr << "render red" << std::endl;
+							window.renderTitle(currentGrid.getCell(row, col), 255, 0, 0, 255);
+							window.display();
+						}
+
 						quit = true;
 					}
 				}
@@ -1024,15 +1178,60 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 			quit = true;
 		}
 
+		int average = 1000 * numHit / (SDL_GetTicks64() - timeStart + 1);
+
+		multiply = std::min(5, average / 2 + (average < 2));
+
 		window.renderGrid(currentGrid);
 
-		textStream.str("");
-		textStream << "Current score: " << score;
-		window.render(0, 0, gFont28, textStream.str().c_str(), colorText);
+		int sx = currentGrid.getGridRect()->x;
+		int sy = currentGrid.getGridRect()->y;
+		int len = currentGrid.getGridRect()->w;
+		SDL_Color BLACK = {0, 0, 0, 255};
+		SDL_Color RED = {255, 0, 0, 255};
+
+		for (auto &[info, startTime]: queryRender)
+		{
+			if (SDL_GetTicks64() - startTime > info[3])
+			{
+				continue;
+			}
+			else 
+			{
+				window.render(info[0], info[1], point[info[2]].texture);
+			}
+		}
+		
+		window.render(sx, sy - 120, gFont35, "TIME", BLACK, 1, sx, sx + len);
 
 		textStream.str("");
-		textStream << "Time left: " << 1.0 * (timeLimit - SDL_GetTicks64() + timeStart) / 1000;
-		window.render(0, SCREEN_HEIGHT - 28, gFont28, textStream.str().c_str(), colorText);
+		textStream << (timeLimit - SDL_GetTicks64() + timeStart) / 1000;
+		window.render(sx, sy - 72, gFont70, textStream.str().c_str(), RED, 1, sx, sx + len);
+
+		if (sizeGrid < 5)
+		{
+			window.render(sx, sy + len + 5, gFont35, "MULTIPLY", BLACK, 3, sx, sx + len);
+
+			textStream.str("");
+			textStream << multiply;
+			window.render(sx, sy + len + 45, gFont70, textStream.str().c_str(), RED, 3, sx, sx + len);
+		}
+		else
+		{
+			window.render(sx, sy - 120, gFont35, "MULTIPLY", BLACK, 3, sx, sx + len);
+
+			textStream.str("");
+			textStream << multiply;
+			window.render(sx, sy - 72, gFont70, textStream.str().c_str(), RED, 3, sx, sx + len);
+
+		}
+
+		window.render(sx, sy - 120, gFont35, "SCORE", BLACK, 2, sx, sx + len);
+
+		textStream.str("");
+		textStream << score;
+		window.render(sx, sy - 72, gFont70, textStream.str().c_str(), RED, 2, sx, sx + len);
+
 		window.display();
 	}
 
@@ -1054,10 +1253,11 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 	bool quit = false;
 
-	int numPattern = 10;
+	int numPattern = timeLimit / 1000;
 	int leftBlack = numBlack;
 
 	Uint64 timeStart = SDL_GetTicks64();
+	std::vector<std::pair<std::array<int, 4>, Uint64>>queryRender;
 
 	std::stringstream textStream;
 	SDL_Color colorText = {0, 0, 0, 255};
@@ -1082,19 +1282,35 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 					if (action)
 					{
 						mixer.playRightNoteSound();
+						int row = coorCell.first, col = coorCell.second;
+						int x = currentGrid.getCoor(row, col).x, y = currentGrid.getCoor(row, col).y;
+
+						std::array<int, 4> tmp = {row, col, 1, 100};
+						queryRender.emplace_back(tmp, SDL_GetTicks64());
+
 						currentGrid.onlyChangeColor(coorCell.first, coorCell.second);
 						leftBlack--;
 					}
 					else
 					{
 						quit = true;
+						int row = coorCell.first, col = coorCell.second;
 						mixer.playWrongNoteSound();
+
+						SDL_Color RED = {255, 0, 0, 0};
+						int startTime = SDL_GetTicks64();
+						while(SDL_GetTicks64() - startTime <= 1000)
+						{
+							std::cerr << "render red" << std::endl;
+							window.renderTitle(currentGrid.getCell(row, col), 255, 0, 0, 255);
+							window.display();
+						}
 					}
 				}
 			}
 		}
 
-		if (numPattern == 1 && leftBlack == 0)
+		if ((numPattern == 1 && leftBlack == 0) || SDL_GetTicks64() - timeStart >= timeLimit)
 		{
 			quit = true;
 		}
@@ -1109,18 +1325,38 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 			}
 			window.renderGrid(currentGrid);
 		}
+		int sx = currentGrid.getGridRect()->x;
+		int sy = currentGrid.getGridRect()->y;
+		int len = currentGrid.getGridRect()->w;
+		SDL_Color BLACK = {0, 0, 0, 255};
+		SDL_Color RED = {255, 0, 0, 255};
+
+		for (auto &[info, startTime]: queryRender)
+		{
+			if (SDL_GetTicks64() - startTime > info[3])
+			{
+				continue;
+			}
+			else 
+			{
+				window.renderTitle(currentGrid.getCell(info[0], info[1]), 0, 255, 0, 255);
+			}
+		}
+		
+		window.render(sx, sy - 120, gFont35, "TIME", BLACK, 1, sx, sx + len);
+
 		textStream.str("");
-		textStream << "Time: " << 1.0 * (SDL_GetTicks64() - timeStart) / 1000;
-		window.render(0, SCREEN_HEIGHT - 28, gFont28, textStream.str().c_str(), colorText);
+		textStream << (timeLimit - SDL_GetTicks64() + timeStart) / 1000;
+		window.render(sx, sy - 72, gFont70, textStream.str().c_str(), RED, 1, sx, sx + len);
+
+		window.render(sx, sy - 120, gFont35, "PATTERN", BLACK, 2, sx, sx + len);
+
+		textStream.str("");
+		textStream << numPattern;
+		window.render(sx, sy - 72, gFont70, textStream.str().c_str(), RED, 2, sx, sx + len);
+
 		window.display();
 	}
-
-	mixer.playWrongNoteSound();
-	window.cleanScreen();
-	textStream.str("");
-	textStream << "Time: " << 1.0 * (SDL_GetTicks64() - timeStart) / 1000 << ". Press R to play again or T to choose another gamemode";
-	window.render(0, 0, gFont28, textStream.str().c_str(), colorText);
-	window.display();
 
 	return getResponse();
 }
@@ -1141,7 +1377,7 @@ bool getResponse()
 			
 			else if (e.type == SDL_KEYDOWN)
 			{
-				mixer.stopAnySound();
+				//mixer.stopAnySound();
 				if (e.key.keysym.sym == SDLK_r)
 				{
 					return true;

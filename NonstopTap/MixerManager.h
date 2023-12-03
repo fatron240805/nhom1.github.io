@@ -30,6 +30,10 @@ class mixerManager
 
         void stopPlayMenuSound();
 
+        void lowerPlayMenuSound();
+
+        void resetPlayMenuSound();
+
         void playRightNoteSound();
 
         void playWrongNoteSound();

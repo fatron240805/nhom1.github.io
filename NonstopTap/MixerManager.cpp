@@ -60,6 +60,16 @@ void mixerManager::stopPlayMenuSound()
     }
 }
 
+void mixerManager::lowerPlayMenuSound()
+{
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
+}
+
+void mixerManager::resetPlayMenuSound()
+{
+    Mix_VolumeMusic(MIX_MAX_VOLUME);
+}
+
 void mixerManager::playRightNoteSound()
 {
     int index = rand() % numRightNoteSound;

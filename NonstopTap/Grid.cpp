@@ -34,7 +34,7 @@ Grid::Grid(int __sizeGrid, Uint64 __timeLimit, int __numBlack, int SCREEN_WIDTH,
 
     int lengthGrid = sizeGrid * SIZE_CELL + (sizeGrid - 1) * DISTANCE_CELL;
     int startX = (SCREEN_WIDTH - lengthGrid) / 2, startY = (SCREEN_HEIGHT - lengthGrid) / 2;
-    gridRect = {startX - DISTANCE_CELL, startY - DISTANCE_CELL, lengthGrid + DISTANCE_CELL * 2, lengthGrid + DISTANCE_CELL * 2};
+    gridRect = {startX - DISTANCE_CELL, startY - DISTANCE_CELL + 60, lengthGrid + DISTANCE_CELL * 2, lengthGrid + DISTANCE_CELL * 2};
 
     generateBlackCell();
 }

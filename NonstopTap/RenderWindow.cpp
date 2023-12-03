@@ -71,11 +71,11 @@ void renderWindow::render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip,
     SDL_RenderCopy(gRender, srcTexture, &srcClip, &dstClip);
 }
 
-void renderWindow::renderTitle(Title* cell)
+void renderWindow::renderTitle(Title* cell, int r, int g, int b, int a)
 {
     SDL_Point tmp = cell->getPosition();
-    int color = 255 * (1 - cell->getColor());
-    renderFillRect(tmp.x, tmp.y, SIZE_CELL, SIZE_CELL, color, color, color, 0);
+    std::cerr << "info " << tmp.x << ' ' << tmp.y << ' ' << r << ' ' << g << ' ' << b << ' ' << a << std::endl;
+    renderFillRect(tmp.x, tmp.y, SIZE_CELL, SIZE_CELL, r, g, b, a);
 }
 
 void renderWindow::renderFillRect(int x, int y, int w, int h, int r, int g, int b, int a)
@@ -85,13 +85,35 @@ void renderWindow::renderFillRect(int x, int y, int w, int h, int r, int g, int 
     SDL_RenderFillRect(gRender, &screenClip);
 }
 
-void renderWindow::render(int x, int y, TTF_Font* font, std::string text, SDL_Color textColor)
+void renderWindow::render(int x, int y, TTF_Font* font, std::string text, SDL_Color textColor, int flag, int l, int r)
 {
     SDL_Surface* textSurface = TTF_RenderText_Blended_Wrapped(font, text.c_str(), textColor, 0);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gRender, textSurface);
 
     //std::cerr << "print word " << text << std::endl;
-    render(x, y, textTexture);
+    if (flag == 0)
+    {
+        render(x, y, textTexture);
+    }
+    else
+    {
+        if (flag == 1) // Align left
+        {
+            render(l, y, textTexture);
+        }
+        else if (flag == 2) // Align right
+        {
+            int tmp;
+            SDL_QueryTexture(textTexture, NULL, NULL, &tmp, NULL);
+            render(r - tmp, y, textTexture);
+        }
+        else if (flag == 3) // Center
+        {
+            int tmp;
+            SDL_QueryTexture(textTexture, NULL, NULL, &tmp, NULL);
+            render(l + (r - l - tmp) / 2, y, textTexture);
+        }
+    }
 
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(textTexture);
