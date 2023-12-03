@@ -567,8 +567,8 @@ void advanceGamemode()
 		}
 
 		SDL_Rect backButton = {20, 20, back.width, back.height};
-		SDL_Rect optionButton = {(SCREEN_WIDTH - button.width) / 2, 460, button.width, button.height};
-		SDL_Rect randomButton = {(SCREEN_WIDTH - button.width) / 2, 460 + 200, button.width, button.height};
+		SDL_Rect optionButton = {(SCREEN_WIDTH - button.width) / 2, 450, button.width, button.height};
+		SDL_Rect randomButton = {(SCREEN_WIDTH - button.width) / 2, 600, button.width, button.height};
 		
 		if (insideHitbox(backButton) || insideHitbox(optionButton) || insideHitbox(randomButton))
 		{
