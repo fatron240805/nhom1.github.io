@@ -64,7 +64,7 @@ void renderWindow::render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip,
     {
         srcClip = {clip->x, clip->y, clip->w, clip->h};
     }
-    std::cerr << "print size " << srcClip.w << ' ' << srcClip.h << std::endl;
+    //std::cerr << "print size " << srcClip.w << ' ' << srcClip.h << std::endl;
 
     dstClip = {x, y, int(srcClip.w * scale), int(srcClip.h * scale)};
 
@@ -90,7 +90,7 @@ void renderWindow::render(int x, int y, TTF_Font* font, std::string text, SDL_Co
     SDL_Surface* textSurface = TTF_RenderText_Blended_Wrapped(font, text.c_str(), textColor, 0);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gRender, textSurface);
 
-    std::cerr << "print word " << text << std::endl;
+    //std::cerr << "print word " << text << std::endl;
     render(x, y, textTexture);
 
     SDL_FreeSurface(textSurface);
