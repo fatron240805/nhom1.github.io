@@ -26,7 +26,7 @@ enum GAMEMODE_CODE
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
 
-//Check if the game is still be played
+//Check if the game is still being played
 bool runningGame = true;
 
 bool insideHitbox(SDL_Rect rect)
@@ -123,6 +123,13 @@ LTexture button = LTexture();
 LTexture back = LTexture();
 LTexture frame = LTexture();
 LTexture rect_frame = LTexture();
+LTexture big_frame = LTexture();
+LTexture big_round = LTexture();
+LTexture big_round_black = LTexture();
+LTexture small_round = LTexture();
+LTexture small_round_black = LTexture();
+LTexture finish = LTexture();
+LTexture groupName = LTexture();
 
 SDL_Texture *avatarGroup = NULL;
 
@@ -146,6 +153,28 @@ void loadMedia()
 	frame.updateDimension();
 
 	rect_frame.texture = window.loadTexture("res/gfx/square_button.png");
+	rect_frame.updateDimension();
+
+	big_frame.texture = window.loadTexture("res/gfx/bigframe5.png");
+	big_frame.updateDimension();
+
+	big_round.texture = window.loadTexture("res/gfx/big_round1.png");
+	big_round.updateDimension();
+
+	big_round_black.texture = window.loadTexture("res/gfx/big_round2.png");
+	big_round_black.updateDimension();
+
+	small_round.texture = window.loadTexture("res/gfx/small_round1.png");
+	small_round.updateDimension();
+
+	small_round_black.texture = window.loadTexture("res/gfx/small_round2.png");
+	small_round_black.updateDimension();
+
+	finish.texture = window.loadTexture("res/gfx/finish_frame.png");
+	finish.updateDimension();
+
+	groupName.texture = window.loadTexture("res/gfx/groupName.png");
+	groupName.updateDimension();
 
 	avatarGroup = window.loadTexture("res/gfx/avatarGroup.png");
 
@@ -155,10 +184,10 @@ void loadMedia()
 	gFontBigger = TTF_OpenFont("res/font/bungee.ttf", 200);
 
 	mixer.loadMenuGameSound("res/sfx/menu_sound_better.mp3");
-	mixer.addRightNoteSound("res/sfx/click0.wav");
-	mixer.addRightNoteSound("res/sfx/click1.wav");
-	mixer.addRightNoteSound("res/sfx/click2.wav");
-	mixer.addRightNoteSound("res/sfx/click3.wav");
+	mixer.addRightNoteSound("res/sfx/click0_solved.wav");
+	mixer.addRightNoteSound("res/sfx/click1_solved.wav");
+	mixer.addRightNoteSound("res/sfx/click2_solved.wav");
+	mixer.addRightNoteSound("res/sfx/click3_solved.wav");
 	mixer.loadWrongNoteound("res/sfx/failed01.wav");
 }
 
@@ -302,7 +331,9 @@ void aboutUs()
 
 		drawBackground();
 
-		window.render(0, 0, avatarGroup);
+		window.render((SCREEN_WIDTH - groupName.width) / 2, 12, groupName.texture);
+
+		window.render(0, 44, avatarGroup);
 		
 		window.render(20, 20, back.texture);
 
@@ -393,7 +424,7 @@ void menu()
 		window.render(classicButton.x + 70, classicButton.y + 25, gFont28, "CLASSIC", BLACK);
 
 		window.render(advanceButton.x, advanceButton.y, button.texture);
-		window.render(advanceButton.x + 70, advanceButton.y + 25, gFont28, "ADVANCE", BLACK);
+		window.render(advanceButton.x + 67, advanceButton.y + 25, gFont28, "ADVANCE", BLACK);
 
 		window.display();
 	}
@@ -493,7 +524,7 @@ void classicGamemode()
 			SDL_Color BLACK = {0, 0, 0, 255};
 
 			window.render((SCREEN_WIDTH - frame.width) / 2, 100, frame.texture, NULL);
-			window.render((SCREEN_WIDTH - frame.width) / 2 + 70, 100 + 75, gFontBig, "CLASSIC", BLACK);
+			window.render((SCREEN_WIDTH - frame.width) / 2 + 80, 100 + 75, gFontBig, "CLASSIC", BLACK);
 
 			window.render(20, 20, back.texture);
 
@@ -505,7 +536,7 @@ void classicGamemode()
 			window.render(frenzyButton.x + 80, frenzyButton.y + 25, gFont28, "FRENZY", BLACK);
 
 			window.render(patternButton.x, patternButton.y, button.texture);
-			window.render(patternButton.x + 75, patternButton.y + 25, gFont28, "PATTERN", BLACK);
+			window.render(patternButton.x + 70, patternButton.y + 25, gFont28, "PATTERN", BLACK);
 
 			window.display();
 		}
@@ -536,8 +567,8 @@ void advanceGamemode()
 		}
 
 		SDL_Rect backButton = {20, 20, back.width, back.height};
-		SDL_Rect optionButton = {(SCREEN_WIDTH - button.width) / 2, 350, button.width, button.height};
-		SDL_Rect randomButton = {(SCREEN_WIDTH - button.width) / 2, 350 + 150, button.width, button.height};
+		SDL_Rect optionButton = {(SCREEN_WIDTH - button.width) / 2, 450, button.width, button.height};
+		SDL_Rect randomButton = {(SCREEN_WIDTH - button.width) / 2, 600, button.width, button.height};
 		
 		if (insideHitbox(backButton) || insideHitbox(optionButton) || insideHitbox(randomButton))
 		{
@@ -603,16 +634,16 @@ void advanceGamemode()
 			SDL_Color BLACK = {0, 0, 0, 255};
 
 			window.render((SCREEN_WIDTH - frame.width) / 2, 100, frame.texture, NULL);
-			window.render((SCREEN_WIDTH - frame.width) / 2 + 0, 100 + 55, gFontBig, "ADVANCE", BLACK);
+			window.render((SCREEN_WIDTH - frame.width) / 2 + 45, 100 + 75, gFontBig, "ADVANCE", BLACK);
 
 			window.render(20, 20, back.texture);
 
 			window.render(optionButton.x, optionButton.y, button.texture);
 			//std::cerr << menuButton.x << ' ' << menuButton.y << ' ' << menuButton.w << ' ' << menuButton.h << std::endl;
-			window.render(optionButton.x + 40, optionButton.y + 25, gFont28, "OPTION", BLACK);
+			window.render(optionButton.x + 77, optionButton.y + 25, gFont28, "OPTION", BLACK);
 
 			window.render(randomButton.x, randomButton.y, button.texture);
-			window.render(randomButton.x + 80, randomButton.y + 25, gFont28, "RANDOM", BLACK);
+			window.render(randomButton.x + 75, randomButton.y + 25, gFont28, "RANDOM", BLACK);
 
 			window.display();
 		}
@@ -629,12 +660,40 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 
 	bool quit = false;
 	bool startGame = true;
+	int choosedGamemode = -1;
+	int choosedSize = -1;
+	int choosedTime = -1;
 	
 	while (!quit && runningGame)
 	{
 		SDL_Rect backButton = {20, 20, back.width, back.height};
+		SDL_Rect finishButton = {229, 656, finish.width, finish.height};
+		SDL_Rect gameOption[3];
+			gameOption[0] = {9, 224, big_round.width, big_round.height};
+			gameOption[1] = {9, 328, big_round.width, big_round.height};
+			gameOption[2] = {9, 430, big_round.width, big_round.height};
+		SDL_Rect sizeOption[4];
+			sizeOption[0] = {350, 224, small_round.width, small_round.height};
+			sizeOption[1] = {350, 328, small_round.width, small_round.height};
+			sizeOption[2] = {350, 430, small_round.width, small_round.height};
+			sizeOption[3] = {350, 532, small_round.width, small_round.height};
+		SDL_Rect timeOption[4];
+			timeOption[0] = {620, 224, small_round.width, small_round.height};
+			timeOption[1] = {620, 328, small_round.width, small_round.height};
+			timeOption[2] = {620, 430, small_round.width, small_round.height};
+			timeOption[3] = {620, 532, small_round.width, small_round.height};
 		
-		if (insideHitbox(backButton))
+		
+
+		auto insideGroupRect = [&](SDL_Rect groupRect[], int len) ->bool {
+			for (int i = 0; i < len; i++)
+				if (insideHitbox(groupRect[i]))
+					return true;
+			return false;
+		};
+		
+		if (insideHitbox(backButton) || insideGroupRect(gameOption, 3) || insideGroupRect(sizeOption, 4) 
+		|| insideGroupRect(timeOption, 4) || insideGroupRect(sizeOption, 4) || insideHitbox(finishButton))
 		{
 			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 		}
@@ -662,16 +721,111 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 					startGame = false;
 				}
 			}
-			
+			else if (insideGroupRect(gameOption, 3))
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					for (int i = 0; i < 3; i++)
+					{
+						if (insideHitbox(gameOption[i]))
+						{
+							choosedGamemode = i;
+						}
+					}
+				}
+			}
+			else if (insideGroupRect(sizeOption, 4))
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					for (int i = 0; i < 4; i++)
+					{
+						if (insideHitbox(sizeOption[i]))
+						{
+							choosedSize = i;
+						}
+					}
+				}
+			}
+			else if (insideGroupRect(timeOption, 4))
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
+				{
+					for (int i = 0; i < 4; i++)
+					{
+						if (insideHitbox(timeOption[i]))
+						{
+							choosedTime = i;
+						}
+					}
+				}
+			}
+			else if (insideHitbox(finishButton))
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN && choosedGamemode >= 0 && choosedSize >= 0 && choosedTime >= 0)
+				{
+					gamemode = choosedGamemode;
+					sizeGrid = choosedSize + 4;
+					timeLimit = (choosedTime + 1) * 15 * 1000;
+					quit = true;
+					startGame = true;
+				}
+			}
 		}
 		
 		drawBackground();
-		
+		std::cerr << choosedGamemode << ' ' << choosedSize << ' ' << choosedTime << std::endl;
+
 		SDL_Color BLACK = {0, 0, 0, 255};
+		//Gamemode options
+		window.render(9, 109, big_frame.texture);
+		window.render(gameOption[0].x, gameOption[0].y, big_round.texture);
+		window.render(gameOption[1].x, gameOption[1].y, big_round.texture);
+		window.render(gameOption[2].x, gameOption[2].y, big_round.texture);
+		if (choosedGamemode >= 0) 
+		{
+			window.render(gameOption[choosedGamemode].x, gameOption[choosedGamemode].y, big_round_black.texture);
+		}
+
+		//Size options
+		window.render(275, 109, big_frame.texture);
+		window.render(sizeOption[0].x, sizeOption[0].y, small_round.texture);
+		window.render(sizeOption[1].x, sizeOption[1].y, small_round.texture);
+		window.render(sizeOption[2].x, sizeOption[2].y, small_round.texture);
+		window.render(sizeOption[3].x, sizeOption[3].y, small_round.texture);
+		if (choosedSize >= 0)
+		{
+			window.render(sizeOption[choosedSize].x, sizeOption[choosedSize].y, small_round_black.texture);
+		}
+
+		//Time options
+		window.render(541, 109, big_frame.texture);
+		window.render(timeOption[0].x, timeOption[0].y, small_round.texture);
+		window.render(timeOption[1].x, timeOption[1].y, small_round.texture);
+		window.render(timeOption[2].x, timeOption[2].y, small_round.texture);
+		window.render(timeOption[3].x, timeOption[3].y, small_round.texture);
+		if (choosedTime >= 0)
+		{
+			window.render(timeOption[choosedTime].x, timeOption[choosedTime].y, small_round_black.texture);
+		}
+
+		
 
 		window.render(20, 20, back.texture);
 
-		window.render(0, 100, rect_frame.texture);
+		window.render(finishButton.x, finishButton.y, finish.texture);
 
 		window.display();
 		
@@ -740,6 +894,7 @@ bool chooseMode(int gamemode, int sizeGrid, Uint64 timeLimit, int numBlack)
 	else 
 	{
 		assert(gamemode == 2);
+		std::cerr << "pattern mode" << std::endl;
 		return patternMode(sizeGrid, timeLimit, numBlack);
 	}
 }
@@ -892,6 +1047,7 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 {
+	std::cerr << sizeGrid << ' ' << timeLimit << ' ' << numBlack << std::endl;
 	Grid currentGrid = Grid(sizeGrid, timeLimit, numBlack, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	SDL_Event e;
