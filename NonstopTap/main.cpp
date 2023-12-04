@@ -76,7 +76,7 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack);
 bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack);
 
 //Get response
-bool getResponse();
+bool getResponse(int gamemode, int currentScore);
 
 //Free resource and quit SDL2
 void close();
@@ -136,8 +136,13 @@ LTexture small_round_black = LTexture();
 LTexture finish = LTexture();
 LTexture groupName = LTexture();
 LTexture point[6]{};
+LTexture result = LTexture();
+LTexture replay = LTexture();
+LTexture home = LTexture();
 
 SDL_Texture *avatarGroup = NULL;
+
+std::vector<int>highscore[3];
 
 SDL_Cursor* cursor;
 
@@ -176,8 +181,17 @@ void loadMedia()
 	small_round_black.texture = window.loadTexture("res/gfx/small_round2.png");
 	small_round_black.updateDimension();
 
+	result.texture = window.loadTexture("res/gfx/result.png");
+	result.updateDimension();
+
 	finish.texture = window.loadTexture("res/gfx/finish_frame.png");
 	finish.updateDimension();
+
+	replay.texture = window.loadTexture("res/gfx/replay.png");
+	replay.updateDimension();
+
+	home.texture = window.loadTexture("res/gfx/home.png");
+	home.updateDimension();
 
 	groupName.texture = window.loadTexture("res/gfx/groupName.png");
 	groupName.updateDimension();
@@ -1104,7 +1118,8 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 		window.display();
 	}
 
-	return getResponse();
+	//return getResponse(ENDURANCE, score);
+	return false;
 }
 
 bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
@@ -1241,7 +1256,8 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 	window.render(0, 0, gFont28, textStream.str().c_str(), colorText);
 	window.display();
 
-	return getResponse();
+	//return getResponse(FRENZY, score);
+	return false;
 }
 
 bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
@@ -1358,11 +1374,49 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 		window.display();
 	}
 
-	return getResponse();
+	//return getResponse(PATTERN, (numPattern == 1 && leftBlack == 0) * (SDL_GetTicks64() - timeStart));
+	return false;
 }
 
-bool getResponse()
+bool getResponse(int gamemode, int currentScore)
 {
+	if (isPlayingClassic)
+	{
+		std::cerr << "update" << std::endl;
+		highscore[gamemode].push_back(currentScore);
+		if (gamemode == PATTERN)
+		{
+			std::sort(highscore[gamemode].begin(), highscore[gamemode].end());
+		}
+		else
+		{
+			std::sort(highscore[gamemode].begin(), highscore[gamemode].end(), std::greater<int>());
+		}
+
+		if (highscore[gamemode].size() > 5)
+		{
+			highscore[gamemode].pop_back();
+		}
+	}
+
+	SDL_Rect replayButton = {214 + (SCREEN_WIDTH - result.width) / 2, (SCREEN_HEIGHT + result.height) / 2 - 70, replay.width, replay.height};
+	SDL_Rect homeButton = {284 + (SCREEN_WIDTH - result.width) / 2, (SCREEN_HEIGHT + result.height) / 2 - 70, home.width, home.height};
+
+	std::stringstream tempStream;
+
+	window.cleanScreen();
+
+	window.render((SCREEN_WIDTH - result.width) / 2, (SCREEN_HEIGHT - result.height) / 2, result.texture);
+
+	SDL_Color RED = {255, 0, 0, 255};
+
+	tempStream.str("");
+	tempStream << currentScore;
+	window.render((SCREEN_WIDTH - result.width) / 2 + result.width / 2 + 40, (SCREEN_HEIGHT - result.height) / 2 + 80, gFontMedium,
+	tempStream.str().c_str(), RED);
+
+	window.display();
+
 	SDL_Event e;
 
 	while(runningGame)
@@ -1374,18 +1428,33 @@ bool getResponse()
 				runningGame = false;
 				return false;
 			}
-			
-			else if (e.type == SDL_KEYDOWN)
+
+			else if (insideHitbox(replayButton))
 			{
-				//mixer.stopAnySound();
-				if (e.key.keysym.sym == SDLK_r)
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
 				{
 					return true;
 				}
-				else if (e.key.keysym.sym == SDLK_t)
+			}
+
+			else if (insideHitbox(homeButton))
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				SDL_SetCursor(cursor);
+
+				if (e.type == SDL_MOUSEBUTTONDOWN)
 				{
 					return false;
 				}
+			}
+
+			else
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+				SDL_SetCursor(cursor);
 			}
 		}
 	}
