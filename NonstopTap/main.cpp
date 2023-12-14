@@ -171,6 +171,7 @@ void loadMedia()
 	home.load("res/gfx/home.png", window);
 	groupName.load("res/gfx/groupName.png", window);
 
+	//load 5 image +1, +2, ..., +5 to point[1], point[2], ..., point[5]
 	for (int i = 1; i <= 5; i++)
 	{
 		std::string path = "res/gfx/+";
