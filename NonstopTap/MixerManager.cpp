@@ -21,7 +21,11 @@ mixerManager::~mixerManager()
 void mixerManager::free()
 {
     Mix_FreeMusic(menuGame);
+    menuGame = NULL;
+
     Mix_FreeChunk(wrongNote);
+    wrongNote = NULL;
+    
     for (int i = 0; i < TOTAL_RIGHT_NOTE_SOUND; i++)
     {
         Mix_FreeChunk(rightNotes[i]);

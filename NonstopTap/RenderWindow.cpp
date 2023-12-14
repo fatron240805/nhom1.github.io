@@ -74,7 +74,7 @@ void renderWindow::render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip,
 void renderWindow::renderTitle(Title* cell, int r, int g, int b, int a)
 {
     SDL_Point tmp = cell->getPosition();
-    std::cerr << "info " << tmp.x << ' ' << tmp.y << ' ' << r << ' ' << g << ' ' << b << ' ' << a << std::endl;
+    //std::cerr << "info " << tmp.x << ' ' << tmp.y << ' ' << r << ' ' << g << ' ' << b << ' ' << a << std::endl;
     renderFillRect(tmp.x, tmp.y, SIZE_CELL, SIZE_CELL, r, g, b, a);
 }
 

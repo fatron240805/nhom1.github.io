@@ -1,6 +1,9 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <string>
+
+#include "RenderWindow.h"
 
 struct LTexture
 {
@@ -15,4 +18,6 @@ struct LTexture
     void free();
 
     void updateDimension();
+
+    void load(std::string path, renderWindow &window);
 };
