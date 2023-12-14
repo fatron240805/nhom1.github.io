@@ -32,6 +32,7 @@ bool runningGame = true;
 
 bool isPlayingClassic = true;
 
+//Check if the mouse point is inside the hitbox
 bool insideHitbox(SDL_Rect rect)
 {
 	int x, y;
