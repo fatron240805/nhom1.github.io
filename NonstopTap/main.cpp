@@ -66,7 +66,7 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit);
 //Choose gamemode based on some parameters
 bool chooseMode(int gamemode, int sizeGrid = 4, Uint64 timeLimit = 30 * 1000, int numBlack = 0);
 
-//
+//Give player some seconds to prepare
 bool waitingForStart(int gamemode);
 
 //Endurance mode: keep playing as long as possible
@@ -78,7 +78,7 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack);
 //Pattern mode: complete every pattern in screen
 bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack);
 
-//Get response
+//Get response from player
 bool getResponse(int gamemode, int currentScore);
 
 //Free resource and quit SDL2
@@ -94,7 +94,7 @@ bool init() {
     }
 
 	int imgFlag = IMG_INIT_JPG | IMG_INIT_PNG;
-	//Initialize SDL_image (PNG)
+	//Initialize SDL_image 
 	if (( IMG_Init(imgFlag) & imgFlag) != imgFlag) {
 		std::cout << "IMG_init has failed. Error: " << IMG_GetError() << std::endl;
         success = false;
@@ -114,6 +114,8 @@ bool init() {
 
 //Used to render everything in screen
 renderWindow window("Nonstop Tap", SCREEN_WIDTH, SCREEN_HEIGHT);
+
+//Manager sound effect and BGM
 mixerManager mixer = mixerManager();
 
 //Font
@@ -145,10 +147,12 @@ LTexture home = LTexture();
 
 SDL_Texture *avatarGroup = NULL;
 
+//Highscore from playing classic gamemode
 std::vector<int>highscore[3];
 
 void loadMedia()
 {
+	//Load texture
 	logoName.load("res/gfx/logoName.png", window);
 	net.load("res/gfx/net.png", window);
 	button.load("res/gfx/button.png", window);
@@ -177,6 +181,7 @@ void loadMedia()
 
 	avatarGroup = window.loadTexture("res/gfx/avatarGroup.png");
 
+	//Load fonts
 	gFont28 = TTF_OpenFont("res/font/bungee.ttf", 28);
 	gFont35 = TTF_OpenFont("res/font/bungee.ttf", 35);
 	gFontMedium = TTF_OpenFont("res/font/bungee.ttf", 50);
@@ -184,6 +189,7 @@ void loadMedia()
 	gFontBig = TTF_OpenFont("res/font/bungee.ttf", 100);
 	gFontBigger = TTF_OpenFont("res/font/bungee.ttf", 200);
 
+	//Load sounds
 	mixer.loadMenuGameSound("res/sfx/menu_sound_better.mp3");
 	mixer.addRightNoteSound("res/sfx/click0_solved.wav");
 	mixer.addRightNoteSound("res/sfx/click2_solved.wav");
@@ -191,6 +197,7 @@ void loadMedia()
 	mixer.loadWrongNoteound("res/sfx/failed01.wav");
 }
 
+//Draw background, slightly move down for each frame
 void drawBackground()
 {
 	static int frame = 0;
@@ -232,14 +239,17 @@ void startGame()
 		{
 			if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))
 			{
+				//Close game
 				runningGame = false;
 			}
 			else if (insideHitbox(menuButton) && e.type == SDL_MOUSEBUTTONDOWN)
 			{
+				//Start the "Menu" screen
 				menu();
 			}
 			else if (insideHitbox(aboutUsButton) && e.type == SDL_MOUSEBUTTONDOWN)
 			{
+				//Start the "About Us" screen
 				aboutUs();
 			}
 		}
@@ -251,7 +261,6 @@ void startGame()
 		SDL_Color BLACK = {0, 0, 0, 255};
 
 		window.render(menuButton.x, menuButton.y, button.texture);
-		//std::cerr << menuButton.x << ' ' << menuButton.y << ' ' << menuButton.w << ' ' << menuButton.h << std::endl;
 		window.render(menuButton.x + 95, menuButton.y + 25, gFont28, "MENU", BLACK);
 
 		window.render(aboutUsButton.x, aboutUsButton.y, button.texture);
