@@ -11,19 +11,19 @@
 class renderWindow
 {
     public:
-        renderWindow();
+        renderWindow(); // Initialize 
 
-        renderWindow(std::string titleWindow, int SCREEN_WIDTH, int SCREEN_HEIGHT);
+        renderWindow(std::string titleWindow, int SCREEN_WIDTH, int SCREEN_HEIGHT); // create a window with Title, Width and Height determined by the parameters
 
-        ~renderWindow();
+        ~renderWindow(); // release the resources
 
-        void free();
+        void free(); // release the resources
 
-        SDL_Texture* loadTexture(std::string filePath);
+        SDL_Texture* loadTexture(std::string filePath); // load a picture from link: filePath to pointer SDL_Texture*
 
-        void cleanScreen();
+        void cleanScreen(); // clean the screen
 
-        void renderTitle(Title* cell, int r, int g, int b, int a);
+        void renderTitle(Title* cell, int r, int g, int b, int a); // render the Title 
 
         void renderFillRect(int x, int y, int w, int h, int r, int g, int b, int a);
 

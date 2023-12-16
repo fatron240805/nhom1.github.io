@@ -206,7 +206,7 @@ void drawBackground()
 
 	//std::cerr << frame << std::endl;
 
-	mixer.playMenuSound();
+	mixer.playMenuSound(); //play the menu-music
 	window.cleanScreen();
 	
 	assert(net.height >= SCREEN_HEIGHT);
