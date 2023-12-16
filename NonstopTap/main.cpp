@@ -177,7 +177,7 @@ void loadMedia()
 		std::string path = "res/gfx/+";
 		path += char(i + 48);
 		path += ".png";
-		std::cerr << path << std::endl;
+		//std::cerr << path << std::endl;
 		point[i].load(path, window);
 	}
 
@@ -1154,6 +1154,7 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 bool getResponse(int gamemode, int currentScore)
 {
+	mixer.stopPlayMenuSound();
 	if (isPlayingClassic)
 	{
 		highscore[gamemode].push_back(currentScore);
@@ -1185,8 +1186,18 @@ bool getResponse(int gamemode, int currentScore)
 
 	tempStream.str("");
 	tempStream << currentScore;
-	window.render((SCREEN_WIDTH - result.width) / 2 + result.width / 2 + 40, (SCREEN_HEIGHT - result.height) / 2 + 80, gFontMedium,
-	tempStream.str().c_str(), RED);
+	window.render((SCREEN_WIDTH - result.width) / 2 + result.width / 2 + 40, (SCREEN_HEIGHT - result.height) / 2 + 36, gFontMedium, tempStream.str().c_str(), RED);
+
+	for (int i = 0; i < 5; i++)
+	{
+		tempStream.str("");
+		if (highscore[gamemode].size() > i)
+		{
+			tempStream << highscore[gamemode][i];
+		}
+		window.render((SCREEN_WIDTH - result.width) / 2 + result.width / 2 - 180 + 40, (SCREEN_HEIGHT - result.height) / 2 + 36 + 168 + i * 61, gFontMedium,
+		tempStream.str().c_str(), RED);
+	}
 
 	window.display();
 
@@ -1203,10 +1214,14 @@ bool getResponse(int gamemode, int currentScore)
 			}
 			else if (insideHitbox(replayButton) && e.type == SDL_MOUSEBUTTONDOWN)
 			{
+				mixer.lowerPlayMenuSound();
+				mixer.playMenuSound();
 				return true;
 			}
 			else if (insideHitbox(homeButton) && e.type == SDL_MOUSEBUTTONDOWN)
 			{
+				mixer.resetPlayMenuSound();
+				mixer.playMenuSound();
 				return false;
 			}
 		}
