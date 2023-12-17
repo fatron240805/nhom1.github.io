@@ -144,11 +144,11 @@ std::pair<int, int> Grid::identifyCell() // find the position (row, col) of the 
     //     row = (y - startY - 60) / (SIZE_CELL + DISTANCE_CELL);
     //     col = (x - startX) / (SIZE_CELL + DISTANCE_CELL);
         
-    //     if (SIZE_CELL < ((y - startY - 60) % (SIZE_CELL + DISTANCE_CELL)) && ((y - startY - 60) % (SIZE_CELL + DISTANCE_CELL)) < SIZE_CELL + DISTANCE_CELL)
+    //     if (SIZE_CELL < ((y - startY - 60) % (SIZE_CELL + DISTANCE_CELL)) || ((y - startY - 60) % (SIZE_CELL + DISTANCE_CELL)) < SIZE_CELL + DISTANCE_CELL)
     //     {
     //         flag = 0;
     //     }
-    //     else if (SIZE_CELL < ((x - startX) % (SIZE_CELL + DISTANCE_CELL)) && ((x - startX) % (SIZE_CELL + DISTANCE_CELL)) < SIZE_CELL + DISTANCE_CELL)
+    //     else if (SIZE_CELL < ((x - startX) % (SIZE_CELL + DISTANCE_CELL)) || ((x - startX) % (SIZE_CELL + DISTANCE_CELL)) < SIZE_CELL + DISTANCE_CELL)
     //     {
     //         flag = 0;
     //     }
