@@ -62,16 +62,16 @@ void renderWindow::renderTitle(Title* cell, int r, int g, int b, int a)
     renderFillRect(tmp.x, tmp.y, SIZE_CELL, SIZE_CELL, r, g, b, a); // render a rectangle to the screen at coordinates x, y
 }
 
-void renderWindow::renderFillRect(int x, int y, int w, int h, int r, int g, int b, int a) // render a rectangle to the screen at coordinates x, y
+void renderWindow::renderFillRect(int x, int y, int w, int h, int r, int g, int b, int a) // render a filled rectangle to the screen at coordinates x, y
 {
-    SDL_Rect screenClip = {x, y, w, h}; // declare and initialize a rectangle with x, y coordinates and width w, height h
+    SDL_Rect screenClip = {x, y, w, h}; // a rectangle with x, y coordinates and width w, height h
     SDL_SetRenderDrawColor(gRender, r, g, b, a); // set the color of renderer 
     SDL_RenderFillRect(gRender, &screenClip); // render a filled rectangle to the screen, with pre-set color
 }
 
 void renderWindow::render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip, double scale) // zoom in/out with a ratio of scale and render to the screen at coordinates x, y
 {
-    SDL_Rect srcClip, dstClip; // declaration
+    SDL_Rect srcClip, dstClip; // declaration two rectangle
     if (clip == NULL) // check if the pointer clip is not point to any SDL_Rect object
     {
         srcClip.x = srcClip.y = 0;
@@ -138,8 +138,8 @@ void renderWindow::renderGrid(Grid &currentGrid) // render the grid
     {
         for (int col = 0; col < sizeGrid; col++)
         {
-            SDL_Point tmp = currentGrid.getCoor(row, col); // declare and initialize a variable tmp to store the position of point in the upper left corner of a sub-square of the grid
-            SDL_Rect cell = {tmp.x, tmp.y, SIZE_CELL, SIZE_CELL}; // declare and initialize a variable cell to store a square with side length SIZE_CELL
+            SDL_Point tmp = currentGrid.getCoor(row, col); // store the position of point in the upper left corner of a sub-square of the grid
+            SDL_Rect cell = {tmp.x, tmp.y, SIZE_CELL, SIZE_CELL}; // store a square with side length SIZE_CELL
 
             if (currentGrid.getColor(row, col) == WHITE_CELL) // check if the color of the cell is white
                 SDL_SetRenderDrawColor(gRender, 255, 255, 255, 255); // set white colour for the renderer
@@ -151,7 +151,7 @@ void renderWindow::renderGrid(Grid &currentGrid) // render the grid
     }
 }
 
-void renderWindow::display()
+void renderWindow::display() // display the contents of graphic window on the screen
 {
     SDL_RenderPresent(gRender);
 }

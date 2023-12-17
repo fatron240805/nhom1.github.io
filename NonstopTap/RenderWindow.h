@@ -8,33 +8,46 @@
 #include "Title.h"
 #include "Grid.h"
 
-class renderWindow
+// render text and images on screen
+class renderWindow 
 {
     public:
-        renderWindow(); // Initialize 
+        // Initialize 
+        renderWindow(); 
 
-        renderWindow(std::string titleWindow, int SCREEN_WIDTH, int SCREEN_HEIGHT); // create a window with Title, Width and Height determined by the parameters
+        // create a window with Title, Width and Height determined by the parameters
+        renderWindow(std::string titleWindow, int SCREEN_WIDTH, int SCREEN_HEIGHT); 
 
-        ~renderWindow(); // release the resources
+        // release the resources
+        ~renderWindow(); 
 
-        void free(); // release the resources
+        // release the resources
+        void free(); 
 
-        SDL_Texture* loadTexture(std::string filePath); // load a picture from link: filePath to pointer SDL_Texture*
+        // load a picture from link: filePath to pointer SDL_Texture*
+        SDL_Texture* loadTexture(std::string filePath); 
 
-        void cleanScreen(); // clean the screen
+        // clean the screen
+        void cleanScreen(); 
 
-        void renderTitle(Title* cell, int r, int g, int b, int a); // render the Title 
+        // render the Title 
+        void renderTitle(Title* cell, int r, int g, int b, int a); 
 
+        // render a filled rectangle to the screen at coordinates x, y
         void renderFillRect(int x, int y, int w, int h, int r, int g, int b, int a);
 
+        // zoom in/out with a ratio of scale and render to the screen at coordinates x, y
         void render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip = NULL, double scale = 1);
 
+        //
         void render(int x, int y, TTF_Font* font, std::string text, SDL_Color textColor, int flag = 0, int l = -1, int r = -1);
 
+        // render the grid
         void renderGrid(Grid &currentGrid);
 
+        // display the contents of graphic window on the screen
         void display();
     private:
-        SDL_Window *gWindow;
-        SDL_Renderer *gRender;
+        SDL_Window *gWindow; // a pointer to stores the graphic window information
+        SDL_Renderer *gRender; // a pointer to render graphic objects 
 };

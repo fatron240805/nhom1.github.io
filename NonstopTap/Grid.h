@@ -7,39 +7,54 @@
 
 #include "Title.h"
 
-const int DISTANCE_CELL = 2; // thickness of grid edge
+// thickness of grid edge
+const int DISTANCE_CELL = 2; 
 
-class Grid // manage the grid's properties
+// manage the grid's properties
+class Grid 
 {
     public:
-        Grid(); // initialize
+        // initialize
+        Grid(); 
 
-        ~Grid(); // free the memory 
-
-        Grid(int __sizeGrid, Uint64 __timeLimit, int __numBlack = 3, int SCREEN_WIDTH = 1280, int SCREEN_HEIGHT = 720); // initialize the grid with it's properties
-
-        void generateBlackCell(); // randomly generate black cells
-
-        void onlyChangeColor(int row, int col);  // change color of cell only
-
-        void changeColor(int row, int col); // change the color and state of cell
-
-        int getSize(); // get size of the grid
+        // free the memory 
+        ~Grid(); 
         
-        Title* getCell(int row, int col); // get the cell in row (row) and column (col) of grid to a pointer Title*
+        // initialize the grid with it's properties
+        Grid(int __sizeGrid, Uint64 __timeLimit, int __numBlack = 3, int SCREEN_WIDTH = 1280, int SCREEN_HEIGHT = 720); 
+    
+        // randomly generate black cells
+        void generateBlackCell(); 
 
-        bool getColor(int row, int col); // get the color of the cell in row (row) and column (col)
-
-        SDL_Point getCoor(int row, int col); // get the positionStart of cell in row (row) and column (col)
-
-        SDL_Rect* getGridRect(); // get the gridRect of grid
-
-        //unoptimized
-        std::pair<int, int> identifyCell(); // find the position (row, col) of the cell that the mouse is pointing
-
-        bool validAction(std::pair<int, int> coorCell); // check if the mouse click action is correct or not
+        // change color of cell only
+        void onlyChangeColor(int row, int col);  
         
-        void debug(); // for debugging 
+        // change the color and state of cell
+        void changeColor(int row, int col); 
+      
+        // get size of the grid
+        int getSize(); 
+
+        // get the cell in row (row) and column (col) of grid to a pointer Title*
+        Title* getCell(int row, int col); 
+
+        // get the color of the cell in row (row) and column (col)
+        bool getColor(int row, int col); 
+
+        // get the positionStart of cell in row (row) and column (col)
+        SDL_Point getCoor(int row, int col); 
+
+        // get the gridRect of grid
+        SDL_Rect* getGridRect(); 
+
+        // find the position (row, col) of the cell that the mouse is pointing
+        std::pair<int, int> identifyCell(); 
+
+        // check if the mouse click action is correct or not
+        bool validAction(std::pair<int, int> coorCell); 
+
+        // for debugging 
+        void debug(); 
 
     private:
         int sizeGrid; // size of the grid (= 5 if the grid is 5x5)

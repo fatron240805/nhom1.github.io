@@ -11,34 +11,48 @@
 
 const int TOTAL_RIGHT_NOTE_SOUND = 5;
 
-class mixerManager // manage the music
+// manage the music
+class mixerManager 
 {
     public:
-        mixerManager(); //Initialize music properties
+        // Initialize music properties
+        mixerManager(); 
 
-        ~mixerManager(); //remove music properties
+        // remove music properties
+        ~mixerManager(); 
 
-        void free(); //remove music properties from memory
+        // remove music properties from memory
+        void free(); 
 
-        void loadMenuGameSound(std::string path); // Load music to pointer Mix_Music* menuGame from link: path
+        // Load music to pointer Mix_Music* menuGame from link: path
+        void loadMenuGameSound(std::string path); 
 
-        void addRightNoteSound(std::string path); // add a right-note-sound to array rightNotes from link: path
+        // add a right-note-sound to array rightNotes from link: path
+        void addRightNoteSound(std::string path); 
 
-        void loadWrongNoteound(std::string path); // load wrong-note-sound to pointer Mix_Chunk* wrongNote from link: path
+        // load wrong-note-sound to pointer Mix_Chunk* wrongNote from link: path
+        void loadWrongNoteound(std::string path); 
 
-        void playMenuSound(); // play the menu-music
+        // play the menu-music
+        void playMenuSound(); 
 
-        void stopPlayMenuSound(); // stop playing the menu-music
+        // stop playing the menu-music
+        void stopPlayMenuSound(); 
 
-        void lowerPlayMenuSound(); // turn down the play-menu-sound
+        // turn down the play-menu-sound
+        void lowerPlayMenuSound(); 
 
-        void resetPlayMenuSound(); //reset the volume of play-menu-sound
+        // reset the volume of play-menu-sound
+        void resetPlayMenuSound(); 
 
-        void playRightNoteSound(); //play the right-note-sound
+        // play the right-note-sound
+        void playRightNoteSound(); 
 
-        void playWrongNoteSound(); //play the wrong-note-sound
-
-        void stopAnySound(); // stop playing all the sound
+        // play the wrong-note-sound
+        void playWrongNoteSound(); 
+        
+        // stop playing all the sound
+        void stopAnySound(); 
 
     private:
         int numRightNoteSound; // numbers of right-note-sound

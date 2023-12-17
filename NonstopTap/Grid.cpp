@@ -28,9 +28,9 @@ Grid::Grid(int __sizeGrid, Uint64 __timeLimit, int __numBlack, int SCREEN_WIDTH,
     timeLimit = __timeLimit;
     numberBlack = __numBlack;
 
-    currentGridColor.assign(sizeGrid * sizeGrid - numberBlack, 0); // initialize dynamic array currnetGridColor with all element is 0
+    currentGridColor.assign(sizeGrid * sizeGrid - numberBlack, 0); // a dynamic array with all element is 0
     currentGridColor.insert(currentGridColor.end(), numberBlack, 1); // add (numberBlack) element(s) 1 
-    currentGrid.assign(sizeGrid, std::vector<Title>(sizeGrid, Title())); // initialize a 2D dynamic array (sizeGrid x sizeGrid) with all elements is Tille's object
+    currentGrid.assign(sizeGrid, std::vector<Title>(sizeGrid, Title())); // a 2D dynamic array (sizeGrid x sizeGrid) with all elements is Tille's object
 
     int lengthGrid = sizeGrid * SIZE_CELL + (sizeGrid - 1) * DISTANCE_CELL; // length of the square grid
     int startX = (SCREEN_WIDTH - lengthGrid) / 2, startY = (SCREEN_HEIGHT - lengthGrid) / 2; // positionStart (the point in the upper left) of the grid
@@ -39,7 +39,7 @@ Grid::Grid(int __sizeGrid, Uint64 __timeLimit, int __numBlack, int SCREEN_WIDTH,
     generateBlackCell();
 }
 
-void Grid::generateBlackCell() // randomly generate black cells
+void Grid::generateBlackCell()// randomly generate black cells
 {
     std::random_shuffle(currentGridColor.begin(), currentGridColor.end()); // random the element 0 (while) and 1 (black) in array currentGridColor
 
@@ -110,7 +110,6 @@ SDL_Rect* Grid::getGridRect() // get the gridRect of grid
     return &gridRect;
 }
 
-//unoptimized
 std::pair<int, int> Grid::identifyCell() // find the position (row, col) of the cell that the mouse is pointing
 {
     int x, y;
@@ -129,6 +128,45 @@ std::pair<int, int> Grid::identifyCell() // find the position (row, col) of the 
     }
 
     return std::make_pair(-1, -1); // if there is no cell sastify, return (-1, -1)
+    
+
+    // int lengthGrid = sizeGrid * SIZE_CELL + (sizeGrid - 1) * DISTANCE_CELL; // length of the square grid
+    // int startX = (SCREEN_WIDTH - lengthGrid) / 2, startY = (SCREEN_HEIGHT - lengthGrid) / 2; // positionStart (the point in the upper left) of the grid
+    // int row, col;
+
+    // bool flag = 1;
+    // if (x < startX || (SCREEN_WIDTH - x) < startX || y < startY + 60 || (SCREEN_HEIGHT - y) < (startY - 60))
+    // {
+    //     flag = 0;
+    // }
+    // else 
+    // {
+    //     int row = (y - startY - 60) / (SIZE_CELL + DISTANCE_CELL);
+    //     int col = (x - startX) / (SIZE_CELL + DISTANCE_CELL);
+        
+    //     if (SIZE_CELL < ((y - startY - 60) % (SIZE_CELL + DISTANCE_CELL)) && ((y - startY - 60) % (SIZE_CELL + DISTANCE_CELL)) < SIZE_CELL + DISTANCE_CELL)
+    //     {
+    //         flag = 0;
+    //     }
+    //     else if (SIZE_CELL < ((x - startX) % (SIZE_CELL + DISTANCE_CELL)) && ((x - startX) % (SIZE_CELL + DISTANCE_CELL)) < SIZE_CELL + DISTANCE_CELL)
+    //     {
+    //         flag = 0;
+    //     }
+    //     else
+    //     {
+    //         flag = 1;
+    //     }
+    // }
+
+    // if {flag == 0}
+    // {
+    //     return std::make_pair(-1, -1);
+    // }
+    // else 
+    // {
+    //     return std::make_pair(row, col);
+    // }
+    
 }
 
 bool Grid::validAction(std::pair<int, int> coorCell) // check if the mouse click action is correct or not
