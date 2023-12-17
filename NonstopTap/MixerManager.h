@@ -11,7 +11,7 @@
 
 const int TOTAL_RIGHT_NOTE_SOUND = 5;
 
-class mixerManager
+class mixerManager // manage the music
 {
     public:
         mixerManager(); //Initialize music properties
