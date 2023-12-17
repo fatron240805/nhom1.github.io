@@ -115,58 +115,47 @@ std::pair<int, int> Grid::identifyCell() // find the position (row, col) of the 
     int x, y;
     SDL_GetMouseState(&x, &y); // get the position of the mouse
 
-    // find the position of cell that the mouse is pointing
-    for (int row = 0; row < sizeGrid; row++)
+    // std::cerr << x << ' ' << y << std::endl;
+
+    int lengthGrid = sizeGrid * SIZE_CELL + (sizeGrid - 1) * DISTANCE_CELL; // length of the square grid
+    int startX = getCell(0, 0)->getPosition().x, startY = getCell(0, 0)->getPosition().y; // positionStart (the point in the upper left) of the grid
+    int row, col;
+
+    // std::cerr << startX << ' ' << startY << ' ' << lengthGrid << ' ' << SIZE_CELL << ' ' << DISTANCE_CELL << std::endl;
+
+    bool flag = true;
+    if (x < startX || startX + lengthGrid <= x || y < startY || startY + lengthGrid <= y)
     {
-        for (int col = 0; col < sizeGrid; col++)
+        flag = false;
+    }
+    else 
+    {
+        row = (y - startY) / (SIZE_CELL + DISTANCE_CELL);
+        col = (x - startX) / (SIZE_CELL + DISTANCE_CELL);
+        
+        if (SIZE_CELL < ((y - startY) % (SIZE_CELL + DISTANCE_CELL)))
         {
-            if (currentGrid[row][col].insideCell(x, y))
-            {
-                return std::make_pair(row, col);
-            }
+            flag = 0;
+        }
+        else if (SIZE_CELL < ((x - startX) % (SIZE_CELL + DISTANCE_CELL)))
+        {
+            flag = 0;
+        }
+        else
+        {
+            flag = true;
+            assert(0 <= row && row < sizeGrid && 0 <= col && col < sizeGrid);
         }
     }
-
-    return std::make_pair(-1, -1); // if there is no cell sastify, return (-1, -1)
     
-
-    // int lengthGrid = sizeGrid * SIZE_CELL + (sizeGrid - 1) * DISTANCE_CELL; // length of the square grid
-    // int startX = (SCREEN_WIDTH - lengthGrid) / 2, startY = (SCREEN_HEIGHT - lengthGrid) / 2; // positionStart (the point in the upper left) of the grid
-    // int row, col;
-
-    // bool flag = 1;
-    // if (x < startX || (SCREEN_WIDTH - x) < startX || y < startY + 60 || (SCREEN_HEIGHT - y) < (startY - 60))
-    // {
-    //     flag = 0;
-    // }
-    // else 
-    // {
-    //     row = (y - startY - 60) / (SIZE_CELL + DISTANCE_CELL);
-    //     col = (x - startX) / (SIZE_CELL + DISTANCE_CELL);
-        
-    //     if (SIZE_CELL < ((y - startY - 60) % (SIZE_CELL + DISTANCE_CELL)) && ((y - startY - 60) % (SIZE_CELL + DISTANCE_CELL)) < SIZE_CELL + DISTANCE_CELL)
-    //     {
-    //         flag = 0;
-    //     }
-    //     else if (SIZE_CELL < ((x - startX) % (SIZE_CELL + DISTANCE_CELL)) && ((x - startX) % (SIZE_CELL + DISTANCE_CELL)) < SIZE_CELL + DISTANCE_CELL)
-    //     {
-    //         flag = 0;
-    //     }
-    //     else
-    //     {
-    //         flag = 1;
-    //     }
-    // }
-
-    // if {flag == 0}
-    // {
-    //     return std::make_pair(-1, -1);
-    // }
-    // else 
-    // {
-    //     return std::make_pair(row, col);
-    // }
-    
+    if (flag == false)
+    {
+        return std::make_pair(-1, -1);
+    }
+    else 
+    {
+        return std::make_pair(row, col);
+    }
 }
 
 bool Grid::validAction(std::pair<int, int> coorCell) // check if the mouse click action is correct or not
