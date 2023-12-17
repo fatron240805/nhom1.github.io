@@ -192,11 +192,11 @@ void loadMedia()
 	gFontBigger = TTF_OpenFont("res/font/bungee.ttf", 200);
 
 	//Load sounds
-	mixer.loadMenuGameSound("res/sfx/menu_sound_better.mp3");
-	mixer.addRightNoteSound("res/sfx/click0_solved.wav");
-	mixer.addRightNoteSound("res/sfx/click2_solved.wav");
-	mixer.addRightNoteSound("res/sfx/click3_solved.wav");
-	mixer.loadWrongNoteound("res/sfx/failed01.wav");
+	mixer.loadMenuGameSound("res/sfx/menu.mp3");
+	mixer.addRightNoteSound("res/sfx/click0.wav");
+	mixer.addRightNoteSound("res/sfx/click1.wav");
+	mixer.addRightNoteSound("res/sfx/click2.wav");
+	mixer.loadWrongNoteound("res/sfx/failed.wav");
 }
 
 //Draw background, slightly move down for each frame
@@ -717,29 +717,29 @@ bool waitingForStart(int gamemode)
 		{
 			if (gamemode == ENDURANCE)
 			{
-				window.render(300, 200, gFontMedium, "Play\nas\nlong\nas\npossible", BLACK);
+				window.render(300, 200, gFontMedium, "Play\nas\nlong\nas\npossible", BLACK, 3, 0, SCREEN_WIDTH);
 			}
 			else if (gamemode == FRENZY)
 			{
-				window.render(300, 150, gFontMedium, "Get\nthe\nhighest\nscore\nin\nlimited\ntime", BLACK);
+				window.render(300, 150, gFontMedium, "Get\nthe\nhighest\nscore\nin\nlimited\ntime", BLACK, 3, 0, SCREEN_WIDTH);
 			}
 			else 
 			{
 				assert(gamemode == PATTERN);
-				window.render(300, 150, gFontMedium, "Clear\nall\npattern\nas\nfast\nas\npossible", BLACK);
+				window.render(300, 150, gFontMedium, "Clear\nall\npattern\nas\nfast\nas\npossible", BLACK, 3, 0, SCREEN_WIDTH);
 			}
 		}
 		else if (amountTime <= 3000 + 1000)
 		{
-			window.render(325, 350, gFontBigger, "3", BLACK);
+			window.render(300, 300, gFontBigger, "3", BLACK, 3, 0, SCREEN_WIDTH);
 		}
 		else if (amountTime <= 3000 + 1000 * 2)
 		{
-			window.render(325, 350, gFontBigger, "2", BLACK);
+			window.render(300, 300, gFontBigger, "2", BLACK, 3, 0, SCREEN_WIDTH);
 		}
 		else if (amountTime <= 3000 + 1000 * 3)
 		{
-			window.render(325, 350, gFontBigger, "1", BLACK);
+			window.render(300, 300, gFontBigger, "1", BLACK, 3, 0, SCREEN_WIDTH);
 		}
 		else
 		{
@@ -858,6 +858,8 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 		if (SDL_GetTicks64() - timeStart >= timeLimit + timeBonus)
 		{
+			mixer.playWrongNoteSound();
+			while(SDL_GetTicks64() - timeStart <= timeLimit + timeBonus + 1000) {}
 			quit = true;
 			break;
 		}
@@ -968,6 +970,8 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 		if (SDL_GetTicks64() - timeStart >= timeLimit)
 		{
+			mixer.playWrongNoteSound();
+			while(SDL_GetTicks64() - timeStart <= timeLimit + 1000) {}
 			quit = true;
 		}
 
@@ -1104,6 +1108,11 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 		if ((numPattern == 1 && leftBlack == 0) || SDL_GetTicks64() - timeStart >= timeLimit)
 		{
+			if (!(numPattern == 1 && leftBlack == 0))
+			{
+				mixer.playWrongNoteSound();
+			}
+			while(SDL_GetTicks64() - timeStart <= timeLimit + 1000) {}
 			quit = true;
 		}
 		else 
@@ -1149,7 +1158,9 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 		window.display();
 	}
 
-	return getResponse(PATTERN, (numPattern == 1 && leftBlack == 0) * (SDL_GetTicks64() - timeStart));
+	int result = (numPattern == 1 && leftBlack == 0 ? (SDL_GetTicks64() - timeStart) : INT_MAX);
+
+	return getResponse(PATTERN, result);
 }
 
 bool getResponse(int gamemode, int currentScore)
@@ -1185,18 +1196,24 @@ bool getResponse(int gamemode, int currentScore)
 	SDL_Color RED = {255, 0, 0, 255};
 
 	tempStream.str("");
-	tempStream << currentScore;
+	if (currentScore < INT_MAX)
+	{
+		tempStream << currentScore;
+	}
 	window.render((SCREEN_WIDTH - result.width) / 2 + result.width / 2 + 40, (SCREEN_HEIGHT - result.height) / 2 + 36, gFontMedium, tempStream.str().c_str(), RED);
 
-	for (int i = 0; i < 5; i++)
+	if (isPlayingClassic)
 	{
-		tempStream.str("");
-		if (highscore[gamemode].size() > i)
+		for (int i = 0; i < 5; i++)
 		{
-			tempStream << highscore[gamemode][i];
+			tempStream.str("");
+			if (highscore[gamemode].size() > i && highscore[gamemode][i] < INT_MAX)
+			{
+				tempStream << highscore[gamemode][i];
+			}
+			window.render((SCREEN_WIDTH - result.width) / 2 + result.width / 2 - 180 + 40, (SCREEN_HEIGHT - result.height) / 2 + 36 + 168 + i * 61, gFontMedium,
+			tempStream.str().c_str(), RED);
 		}
-		window.render((SCREEN_WIDTH - result.width) / 2 + result.width / 2 - 180 + 40, (SCREEN_HEIGHT - result.height) / 2 + 36 + 168 + i * 61, gFontMedium,
-		tempStream.str().c_str(), RED);
 	}
 
 	window.display();
@@ -1214,12 +1231,14 @@ bool getResponse(int gamemode, int currentScore)
 			}
 			else if (insideHitbox(replayButton) && e.type == SDL_MOUSEBUTTONDOWN)
 			{
+				mixer.stopAnySound();
 				mixer.lowerPlayMenuSound();
 				mixer.playMenuSound();
 				return true;
 			}
 			else if (insideHitbox(homeButton) && e.type == SDL_MOUSEBUTTONDOWN)
 			{
+				mixer.stopAnySound();
 				mixer.resetPlayMenuSound();
 				mixer.playMenuSound();
 				return false;
