@@ -130,9 +130,11 @@ void startGame()
 
 	while (!quit && runningGame)
 	{
+		// create hitbox for MENU and ABOUT US button
 		SDL_Rect menuButton = {(SCREEN_WIDTH - button.width) / 2, 450, button.width, button.height};
 		SDL_Rect aboutUsButton = {(SCREEN_WIDTH - button.width) / 2, 600, button.width, button.height};
 
+		// handle the input events from keyboard and mouse
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))
@@ -140,7 +142,7 @@ void startGame()
 				//Close game
 				runningGame = false;
 			}
-			else if (insideHitbox(menuButton) && e.type == SDL_MOUSEBUTTONDOWN)
+			else if (insideHitbox(menuButton) && e.type == SDL_MOUSEBUTTONDOWN) 
 			{
 				//Start the "Menu" screen
 				menu();
@@ -154,6 +156,7 @@ void startGame()
 
 		drawBackground();
 
+		// render MENU and ABOUT US button
 		window.render((SCREEN_WIDTH - logoName.width) / 2, 50, logoName.texture);
 
 		SDL_Color BLACK = {0, 0, 0, 255};
@@ -210,6 +213,7 @@ void menu()
 
 	while (!quit && runningGame)
 	{
+		// create hibox for back, classic and advance button
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		SDL_Rect classicButton = {(SCREEN_WIDTH - button.width) / 2, 450, button.width, button.height};
 		SDL_Rect advanceButton = {(SCREEN_WIDTH - button.width) / 2, 600, button.width, button.height};
@@ -240,6 +244,7 @@ void menu()
 		
 		SDL_Color BLACK = {0, 0, 0, 255};
 
+		// render image (the text "MENU", classic and advance button)
 		window.render((SCREEN_WIDTH - frame.width) / 2, 100, frame.texture, NULL);
 		window.render((SCREEN_WIDTH - frame.width) / 2 + 150, 100 + 70, gFontBig, "MENU", BLACK);
 
@@ -262,8 +267,8 @@ void classicGamemode()
 
 	bool quit = false;
 	
-	bool keepPlaying = false;
-	int gameMode = FRENZY;
+	bool keepPlaying = false; // check if player keep playing the previous gamemode
+	int gameMode = FRENZY; // 0 ~ endurance, 1 ~ frenzy, 2 ~ pattern
 
 	while (!quit && runningGame)
 	{
@@ -272,11 +277,13 @@ void classicGamemode()
 			keepPlaying = chooseMode(gameMode);
 		}
 
+		// create hitbox for button
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		SDL_Rect enduranceButton = {(SCREEN_WIDTH - button.width) / 2, 400, button.width, button.height};
 		SDL_Rect frenzyButton = {(SCREEN_WIDTH - button.width) / 2, enduranceButton.y + 150, button.width, button.height};
 		SDL_Rect patternButton = {(SCREEN_WIDTH - button.width) / 2, enduranceButton.y + 150 * 2, button.width, button.height};
 
+		// handle the input events from keyboard and mouse
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT)
@@ -311,6 +318,7 @@ void classicGamemode()
 
 		if (!keepPlaying)
 		{
+			// if 
 			drawBackground();
 			
 			SDL_Color BLACK = {0, 0, 0, 255};
@@ -352,7 +360,8 @@ void advanceGamemode()
 		{
 			keepPlaying = chooseMode(gameMode, sizeGrid, timeLimit, numBlack);
 		}
-
+		
+		//create back, option and random button hitbox
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		SDL_Rect optionButton = {(SCREEN_WIDTH - button.width) / 2, 450, button.width, button.height};
 		SDL_Rect randomButton = {(SCREEN_WIDTH - button.width) / 2, 600, button.width, button.height};
@@ -421,6 +430,7 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 	
 	while (!quit && runningGame)
 	{
+		// render hitbox for button
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		SDL_Rect finishButton = {229, 656, finish.width, finish.height};
 		SDL_Rect gameOption[3];
@@ -445,6 +455,7 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 			return false;
 		};
 
+		// handle the input events from keyboard and mouse
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT)

@@ -5,19 +5,28 @@
 
 #include "RenderWindow.h"
 
+// manage the texture of image
 struct LTexture
 {
-    SDL_Texture *texture;
+    // to store images 
+    SDL_Texture *texture; 
+    // width of image
     int width;
+    // height of image
     int height;
 
-    LTexture();
+    // initialize
+    LTexture(); 
 
+    // free the memory
     ~LTexture();
 
+    // free the memory
     void free();
 
+    // update the size of image
     void updateDimension();
 
-    void load(std::string path, renderWindow &window);
+    // load an image from link: path and assigns to texture
+    void load(std::string path, renderWindow &window); 
 };

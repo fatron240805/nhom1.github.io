@@ -5,19 +5,19 @@
 #include "LTexture.h"
 #include "RenderWindow.h"
 
-LTexture::LTexture()
+LTexture::LTexture() // initialize
 {
     texture = NULL;
     width = 0;
     height = 0;
 }
 
-LTexture::~LTexture()
+LTexture::~LTexture() // free the memory
 {
     free();
 }
 
-void LTexture::free()
+void LTexture::free() // free the memory
 {
     if (texture != NULL)
     {
@@ -28,12 +28,12 @@ void LTexture::free()
     }
 }
 
-void LTexture::updateDimension()
+void LTexture::updateDimension() // update the size of image
 {
     SDL_QueryTexture(texture, NULL, NULL, &width, &height);
 }
 
-void LTexture::load(std::string path, renderWindow &window)
+void LTexture::load(std::string path, renderWindow &window) // load an image from link: path and assigns to texture
 {
     texture = window.loadTexture(path);
     updateDimension();
