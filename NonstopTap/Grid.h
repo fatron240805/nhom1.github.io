@@ -50,7 +50,7 @@ class Grid
         // find the position (row, col) of the cell that the mouse is pointing
         std::pair<int, int> identifyCell(); 
 
-        // check if the mouse click action is correct or not
+        // check if the mouse click action is correct (1) or not (0)
         bool validAction(std::pair<int, int> coorCell); 
 
         // for debugging 

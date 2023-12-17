@@ -79,7 +79,7 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack);
 //Pattern mode: complete every pattern in screen
 bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack);
 
-//Get response from player
+// render a table with time, score and the 5 highest score
 bool getResponse(int gamemode, int currentScore);
 
 //Free resource and quit SDL2
@@ -234,9 +234,11 @@ void startGame()
 
 	while (!quit && runningGame)
 	{
+		// create hitbox for MENU and ABOUT US button
 		SDL_Rect menuButton = {(SCREEN_WIDTH - button.width) / 2, 450, button.width, button.height};
 		SDL_Rect aboutUsButton = {(SCREEN_WIDTH - button.width) / 2, 600, button.width, button.height};
 
+		// handle the input events from keyboard and mouse
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))
@@ -244,7 +246,7 @@ void startGame()
 				//Close game
 				runningGame = false;
 			}
-			else if (insideHitbox(menuButton) && e.type == SDL_MOUSEBUTTONDOWN)
+			else if (insideHitbox(menuButton) && e.type == SDL_MOUSEBUTTONDOWN) 
 			{
 				//Start the "Menu" screen
 				menu();
@@ -258,6 +260,7 @@ void startGame()
 
 		drawBackground();
 
+		// render MENU and ABOUT US button
 		window.render((SCREEN_WIDTH - logoName.width) / 2, 50, logoName.texture);
 
 		SDL_Color BLACK = {0, 0, 0, 255};
@@ -314,6 +317,7 @@ void menu()
 
 	while (!quit && runningGame)
 	{
+		// create hibox for back, classic and advance button
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		SDL_Rect classicButton = {(SCREEN_WIDTH - button.width) / 2, 450, button.width, button.height};
 		SDL_Rect advanceButton = {(SCREEN_WIDTH - button.width) / 2, 600, button.width, button.height};
@@ -344,6 +348,7 @@ void menu()
 		
 		SDL_Color BLACK = {0, 0, 0, 255};
 
+		// render image (the text "MENU", classic and advance button)
 		window.render((SCREEN_WIDTH - frame.width) / 2, 100, frame.texture, NULL);
 		window.render((SCREEN_WIDTH - frame.width) / 2 + 150, 100 + 70, gFontBig, "MENU", BLACK);
 
@@ -366,8 +371,8 @@ void classicGamemode()
 
 	bool quit = false;
 	
-	bool keepPlaying = false;
-	int gameMode = FRENZY;
+	bool keepPlaying = false; // check if player keep playing the previous gamemode
+	int gameMode = FRENZY; // 0 ~ endurance, 1 ~ frenzy, 2 ~ pattern
 
 	while (!quit && runningGame)
 	{
@@ -376,11 +381,13 @@ void classicGamemode()
 			keepPlaying = chooseMode(gameMode);
 		}
 
+		// create hitbox for button
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		SDL_Rect enduranceButton = {(SCREEN_WIDTH - button.width) / 2, 400, button.width, button.height};
 		SDL_Rect frenzyButton = {(SCREEN_WIDTH - button.width) / 2, enduranceButton.y + 150, button.width, button.height};
 		SDL_Rect patternButton = {(SCREEN_WIDTH - button.width) / 2, enduranceButton.y + 150 * 2, button.width, button.height};
 
+		// handle the input events from keyboard and mouse
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT)
@@ -415,6 +422,7 @@ void classicGamemode()
 
 		if (!keepPlaying)
 		{
+			// if 
 			drawBackground();
 			
 			SDL_Color BLACK = {0, 0, 0, 255};
@@ -456,7 +464,8 @@ void advanceGamemode()
 		{
 			keepPlaying = chooseMode(gameMode, sizeGrid, timeLimit, numBlack);
 		}
-
+		
+		//create back, option and random button hitbox
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		SDL_Rect optionButton = {(SCREEN_WIDTH - button.width) / 2, 450, button.width, button.height};
 		SDL_Rect randomButton = {(SCREEN_WIDTH - button.width) / 2, 600, button.width, button.height};
@@ -525,6 +534,7 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 	
 	while (!quit && runningGame)
 	{
+		// render hitbox for button
 		SDL_Rect backButton = {20, 20, back.width, back.height};
 		SDL_Rect finishButton = {229, 656, finish.width, finish.height};
 		SDL_Rect gameOption[3];
@@ -549,6 +559,7 @@ bool optionMap(int &gamemode, int &sizeGrid, Uint64 &timeLimit)
 			return false;
 		};
 
+		// handle the input events from keyboard and mouse
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT)
@@ -814,6 +825,7 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 				std::pair<int, int> coorCell = currentGrid.identifyCell();
 				if (coorCell.first != -1 && coorCell.second != -1)
 				{
+					//check if the mouse click action is true or false
 					bool action = currentGrid.validAction(coorCell);
 					if (action)
 					{
@@ -842,6 +854,8 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 						SDL_Color RED = {255, 0, 0, 0};
 						int startTime = SDL_GetTicks64();
+
+						// render a red square at the incorrectly clicked cell for a second
 						while(SDL_GetTicks64() - startTime <= 1000)
 						{
 							//std::cerr << "render red" << std::endl;
@@ -856,10 +870,11 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 			}
 		}
 
+		// delay 1s when time out
 		if (SDL_GetTicks64() - timeStart >= timeLimit + timeBonus)
 		{
 			mixer.playWrongNoteSound();
-			while(SDL_GetTicks64() - timeStart <= timeLimit + timeBonus + 1000) {}
+			while(SDL_GetTicks64() - timeStart <= timeLimit + timeBonus + 1000) {} 
 			quit = true;
 			break;
 		}
@@ -884,6 +899,7 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 			}
 		}
 		
+		// render the results table
 		window.render(sx, sy - 120, gFont35, "TIME", BLACK, 1, sx, sx + len);
 
 		textStream.str("");
@@ -1166,6 +1182,8 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 bool getResponse(int gamemode, int currentScore)
 {
 	mixer.stopPlayMenuSound();
+
+	// save the 5-highest score
 	if (isPlayingClassic)
 	{
 		highscore[gamemode].push_back(currentScore);
@@ -1184,6 +1202,7 @@ bool getResponse(int gamemode, int currentScore)
 		}
 	}
 
+	// create the replay and home button hitbox
 	SDL_Rect replayButton = {214 + (SCREEN_WIDTH - result.width) / 2, (SCREEN_HEIGHT + result.height) / 2 - 70, replay.width, replay.height};
 	SDL_Rect homeButton = {284 + (SCREEN_WIDTH - result.width) / 2, (SCREEN_HEIGHT + result.height) / 2 - 70, home.width, home.height};
 
@@ -1195,6 +1214,7 @@ bool getResponse(int gamemode, int currentScore)
 
 	SDL_Color RED = {255, 0, 0, 255};
 
+	// render the currentscore on screen
 	tempStream.str("");
 	if (currentScore < INT_MAX)
 	{
@@ -1202,6 +1222,7 @@ bool getResponse(int gamemode, int currentScore)
 	}
 	window.render((SCREEN_WIDTH - result.width) / 2 + result.width / 2 + 40, (SCREEN_HEIGHT - result.height) / 2 + 36, gFontMedium, tempStream.str().c_str(), RED);
 
+	// render the 5 highest score on screen
 	if (isPlayingClassic)
 	{
 		for (int i = 0; i < 5; i++)
@@ -1220,6 +1241,7 @@ bool getResponse(int gamemode, int currentScore)
 
 	SDL_Event e;
 
+	// handle the input events from keyboard and mouse
 	while(runningGame)
 	{
 		while (SDL_PollEvent(&e) != 0)
