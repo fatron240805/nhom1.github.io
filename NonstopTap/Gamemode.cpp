@@ -15,8 +15,7 @@
 #include "RenderWindow.h"
 #include "MixerManager.h"
 #include "LTexture.h"
-#include "main.h"
-#include "var.h"
+#include "Var.h"
 #include "Gamemode.h"
 
 bool waitingForStart(int gamemode)
