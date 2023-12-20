@@ -22,7 +22,7 @@
 //Initialize SDL2
 bool init() {
 	srand(time(NULL)); 
-	
+
     bool success = true;
 
 	//Initialize SDL2
@@ -50,7 +50,7 @@ bool init() {
 	return success;
 }
 
-int main( int argc, char* args[] ){  
+int main( int argc, char* args[]){  
     init();
 
 	loadMedia();

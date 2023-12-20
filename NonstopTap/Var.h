@@ -3,10 +3,6 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
-#include <algorithm>
-#include <assert.h>
-#include <sstream>
-#include <array>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>

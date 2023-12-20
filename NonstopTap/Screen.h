@@ -3,17 +3,13 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
-#include <algorithm>
 #include <assert.h>
 #include <sstream>
-#include <array>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-#include "Title.h"
-#include "Grid.h"
 #include "RenderWindow.h"
 #include "MixerManager.h"
 #include "LTexture.h"

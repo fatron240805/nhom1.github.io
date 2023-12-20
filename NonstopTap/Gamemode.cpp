@@ -197,16 +197,16 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 		SDL_Color BLACK = {0, 0, 0, 255};
 		SDL_Color RED = {255, 0, 0, 255};
 
+		std::sort(queryRender.begin(), queryRender.end(), [&](std::pair<std::array<int, 4>, Uint64> T1, std::pair<std::array<int, 4>, Uint64> T2) { return T1.second >= T2.second; });
+
+		while(!queryRender.empty() && SDL_GetTicks64() - queryRender.back().second > queryRender.back().first[3])
+		{
+			queryRender.pop_back();
+		}
+
 		for (auto &[info, startTime]: queryRender)
 		{
-			if (SDL_GetTicks64() - startTime > info[3])
-			{
-				continue;
-			}
-			else 
-			{
-				window.render(info[0], info[1], point[info[2]].texture);
-			}
+			window.render(info[0], info[1], point[info[2]].texture);
 		}
 		
 		window.render(sx, sy - 120, gFont35, "TIME", BLACK, 1, sx, sx + len);
@@ -302,7 +302,7 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 		int average = 1000 * numHit / (SDL_GetTicks64() - timeStart + 1);
 
-		multiply = std::min(5, average / 2 + (average < 2));
+		multiply = std::min(5, 1 + (average - 3) * (average > 3));
 
 		window.renderGrid(currentGrid);
 
@@ -312,16 +312,16 @@ bool frenzyMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 		SDL_Color BLACK = {0, 0, 0, 255};
 		SDL_Color RED = {255, 0, 0, 255};
 
+		std::sort(queryRender.begin(), queryRender.end(), [&](std::pair<std::array<int, 4>, Uint64> T1, std::pair<std::array<int, 4>, Uint64> T2) { return T1.second >= T2.second; });
+
+		while(!queryRender.empty() && SDL_GetTicks64() - queryRender.back().second > queryRender.back().first[3])
+		{
+			queryRender.pop_back();
+		}
+
 		for (auto &[info, startTime]: queryRender)
 		{
-			if (SDL_GetTicks64() - startTime > info[3])
-			{
-				continue;
-			}
-			else 
-			{
-				window.render(info[0], info[1], point[info[2]].texture);
-			}
+			window.render(info[0], info[1], point[info[2]].texture);
 		}
 		
 		window.render(sx, sy - 120, gFont35, "TIME", BLACK, 1, sx, sx + len);
@@ -374,7 +374,7 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 	bool quit = false;
 
-	int numPattern = timeLimit / 1000;
+	int numPattern = (int)(timeLimit / 2000);
 	int leftBlack = numBlack;
 
 	Uint64 timeStart = SDL_GetTicks64();
@@ -384,6 +384,9 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 	SDL_Color colorText = {0, 0, 0, 255};
 
 	window.renderGrid(currentGrid);
+
+	int lastRow = -1, lastCol = -1;
+	bool completed = false;
 
 	while (!quit && runningGame)
 	{
@@ -404,6 +407,7 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 					{
 						mixer.playRightNoteSound();
 						int row = coorCell.first, col = coorCell.second;
+						lastRow = row, lastCol = col;
 						int x = currentGrid.getCoor(row, col).x, y = currentGrid.getCoor(row, col).y;
 
 						std::array<int, 4> tmp = {row, col, 1, 100};
@@ -411,6 +415,11 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 						currentGrid.onlyChangeColor(coorCell.first, coorCell.second);
 						leftBlack--;
+
+						if (numPattern == 1 && leftBlack == 0)
+						{
+							completed = true;
+						}
 					}
 					else
 					{
@@ -422,7 +431,7 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 						int startTime = SDL_GetTicks64();
 						while(SDL_GetTicks64() - startTime <= 1000)
 						{
-							std::cerr << "render red" << std::endl;
+							//std::cerr << "render red" << std::endl;
 							window.renderTitle(currentGrid.getCell(row, col), 255, 0, 0, 255);
 							window.display();
 						}
@@ -431,14 +440,33 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 			}
 		}
 
-		if ((numPattern == 1 && leftBlack == 0) || SDL_GetTicks64() - timeStart >= timeLimit)
+		if (completed || SDL_GetTicks64() - timeStart >= timeLimit)
 		{
+			//std::cerr << "Clear!" << std::endl;
+			Uint64 newTimeStart = SDL_GetTicks64();
 			if (!(numPattern == 1 && leftBlack == 0))
 			{
 				mixer.playWrongNoteSound();
+				while(SDL_GetTicks64() - newTimeStart <= 1000) {}
 			}
-			while(SDL_GetTicks64() - timeStart <= timeLimit + 1000) {}
+			else
+			{
+				while(SDL_GetTicks64() - newTimeStart <= 100) 
+				{
+					window.renderTitle(currentGrid.getCell(lastRow, lastCol), 0, 255, 0, 255);
+					window.display();
+				}
+				while(SDL_GetTicks64() - newTimeStart <= 1000) 
+				{
+					window.renderTitle(currentGrid.getCell(lastRow, lastCol), 255, 255, 255, 255);
+					window.display();
+				}
+			}
 			quit = true;
+			if (completed)
+			{
+				break;
+			}
 		}
 		else 
 		{
@@ -455,17 +483,18 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 		int len = currentGrid.getGridRect()->w;
 		SDL_Color BLACK = {0, 0, 0, 255};
 		SDL_Color RED = {255, 0, 0, 255};
+		//std::cerr << "test1" << ' ' << quit << std::endl;
+
+		std::sort(queryRender.begin(), queryRender.end(), [&](std::pair<std::array<int, 4>, Uint64> T1, std::pair<std::array<int, 4>, Uint64> T2) { return T1.second >= T2.second; });
+
+		while(!queryRender.empty() && SDL_GetTicks64() - queryRender.back().second > queryRender.back().first[3])
+		{
+			queryRender.pop_back();
+		}
 
 		for (auto &[info, startTime]: queryRender)
 		{
-			if (SDL_GetTicks64() - startTime > info[3])
-			{
-				continue;
-			}
-			else 
-			{
-				window.renderTitle(currentGrid.getCell(info[0], info[1]), 0, 255, 0, 255);
-			}
+			window.renderTitle(currentGrid.getCell(info[0], info[1]), 0, 255, 0, 255);
 		}
 		
 		window.render(sx, sy - 120, gFont35, "TIME", BLACK, 1, sx, sx + len);
@@ -481,6 +510,7 @@ bool patternMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 		window.render(sx, sy - 72, gFont70, textStream.str().c_str(), RED, 2, sx, sx + len);
 
 		window.display();
+		//std::cerr << quit << std::endl;
 	}
 
 	int result = (numPattern == 1 && leftBlack == 0 ? (SDL_GetTicks64() - timeStart) : INT_MAX);
@@ -523,7 +553,7 @@ bool getResponse(int gamemode, int currentScore)
 	tempStream.str("");
 	if (currentScore < INT_MAX)
 	{
-		tempStream << currentScore;
+		tempStream << (gamemode != PATTERN ? currentScore : 1.0 * currentScore / 1000);
 	}
 	window.render((SCREEN_WIDTH - result.width) / 2 + result.width / 2 + 40, (SCREEN_HEIGHT - result.height) / 2 + 36, gFontMedium, tempStream.str().c_str(), RED);
 
@@ -534,7 +564,7 @@ bool getResponse(int gamemode, int currentScore)
 			tempStream.str("");
 			if (highscore[gamemode].size() > i && highscore[gamemode][i] < INT_MAX)
 			{
-				tempStream << highscore[gamemode][i];
+				tempStream << (gamemode != PATTERN ? highscore[gamemode][i] : 1.0 * highscore[gamemode][i] / 1000);
 			}
 			window.render((SCREEN_WIDTH - result.width) / 2 + result.width / 2 - 180 + 40, (SCREEN_HEIGHT - result.height) / 2 + 36 + 168 + i * 61, gFontMedium,
 			tempStream.str().c_str(), RED);
