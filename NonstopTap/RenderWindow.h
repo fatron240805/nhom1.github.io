@@ -39,7 +39,7 @@ class renderWindow
         // zoom in/out with a ratio of scale and render to the screen at coordinates x, y
         void render(int x, int y, SDL_Texture* srcTexture, SDL_Rect *clip = NULL, double scale = 1);
 
-        //
+        // display text on screen 
         void render(int x, int y, TTF_Font* font, std::string text, SDL_Color textColor, int flag = 0, int l = -1, int r = -1);
 
         // render the grid
