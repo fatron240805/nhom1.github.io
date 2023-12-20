@@ -111,9 +111,9 @@ bool enduranceMode(int sizeGrid, Uint64 timeLimit, int numBlack)
 
 	bool quit = false;
 
-	const int amountTimeBonus = timeLimit;
+	const int amountTimeBonus = 10000;
 	int score = 0;
-	int requiredScore = std::min(numBlack * (8 + amountTimeBonus / 15000), 30) * timeLimit / 10000;
+	int requiredScore = std::max(numBlack * (8 + amountTimeBonus / 15000), 40);
 	
 	Uint64 timeStart = SDL_GetTicks64();
 	Uint64 timeBonus = 0;
